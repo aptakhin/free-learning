@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  mongodb:
+    image: mongo:5.0.14
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - 27017:27017
+  fbackend:
+    build: backend
+    command: uvicorn fl_core.app:app --reload
+    depends_on:
+      - mongodb
+    volumes:
+      - backend:/usr/src/app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://root:root@mongodb/
+
+volumes:
+  backend:
