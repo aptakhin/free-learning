@@ -8,13 +8,22 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: root
     ports:
       - 27017:27017
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017/
+
   fbackend:
     build: backend
-    command: uvicorn fl_core.app:app --reload
+    command: uvicorn fl_core.app:app --host 0.0.0.0 --port 8000
     depends_on:
       - mongodb
-    volumes:
-      - backend:/usr/src/app
+    # volumes:
+    #   - backend:/usr/src/app
     ports:
       - "8000:8000"
     environment:

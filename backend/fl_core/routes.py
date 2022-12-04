@@ -12,7 +12,6 @@ router = APIRouter(
 
 
 async def get_db():
-
     print(config.MONGODB_URL)
     client = motor.motor_asyncio.AsyncIOMotorClient(host=config.MONGODB_URL, serverSelectionTimeoutMS=50, connect=False)
     try:
@@ -36,5 +35,5 @@ async def healthz():
 @router.post('/{org}/upsert-entity')
 async def upsert_entity(org, db=Depends(get_db)):
     """."""
-    await db.prod.collection.insert_one({'test': 1})
+    await db.test.collection.insert_one({'test': 1})
     return {'status': True}
