@@ -1,18 +1,30 @@
 # Hello
 
-```bash
-poetry install --group dev
-ptw
-```
+## Backend
 
-Linting:
+Install
 
 ```bash
-flake8
+(cd backend && poetry install --with dev --no-root)
 ```
 
 Running:
 
 ```bash
-docker compose up -d --build
+make run-infra
+make run-backendw
 ```
+
+Run all in docker compose:
+
+```bash
+make run
+```
+
+Run pytest-watch:
+
+```bash
+make test-backendw
+```
+
+Linting (and can also use VSCode flake8 extension from environment setting):

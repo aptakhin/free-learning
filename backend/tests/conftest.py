@@ -1,3 +1,5 @@
+"""."""
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -13,8 +15,8 @@ def test_app():
 
 @pytest.fixture
 def client(test_app):
-    client = TestClient(test_app)
-    yield client
+    cl = TestClient(test_app)
+    yield cl
 
 
 @pytest.fixture
