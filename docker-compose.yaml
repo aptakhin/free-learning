@@ -17,9 +17,9 @@ services:
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017/
 
-  fbackend:
+  backend:
     build: backend
-    command: uvicorn fl_core.app:app --host 0.0.0.0 --port 8000
+    command: uvicorn app:app --host 0.0.0.0 --port 8000
     depends_on:
       - mongodb
     # volumes:

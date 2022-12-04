@@ -3,13 +3,13 @@
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from fl_core.routes import router
+from app import create_app
+from base.routes import router
 
 
 @pytest.fixture
 def test_app():
-    app = FastAPI()
-    app.include_router(router)
+    app = create_app()
     yield app
 
 

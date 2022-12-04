@@ -13,6 +13,7 @@ fastapi = "^0.88.0"
 httpx = "^0.23.1"
 uvicorn = "^0.20.0"
 motor = {extras = ["srv"], version = "^3.1.1"}
+pydantic = {extras = ["dotenv"], version = "^1.10.2"}
 
 
 [tool.poetry.group.dev.dependencies]
