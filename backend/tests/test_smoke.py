@@ -1,5 +1,5 @@
 
-def test_read_main(client):
-    response = client.get("/items")
+def test_api_healthz(client):
+    response = client.get(f'/api/v1/healthz')
     assert response.status_code == 200
-    assert response.json() == {"msg": "Hello World"}
+    assert response.json() == {"status": True}

@@ -18,7 +18,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgres://root:root@mongodb/
+      DATABASE_URL: mongodb://root:root@0.0.0.0:27017/test
 
 volumes:
   backend:

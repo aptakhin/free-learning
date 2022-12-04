@@ -15,3 +15,8 @@ def test_app():
 def client(test_app):
     client = TestClient(test_app)
     yield client
+
+
+@pytest.fixture
+def test_org():
+    yield 'test_org'

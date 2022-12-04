@@ -1,16 +1,18 @@
 """."""
+from datetime import datetime
+from typing import Optional
 import uuid
 
 from pydantic import BaseModel, Field
 
 
-class FItem(BaseModel):
+class Entity(BaseModel):
     """."""
 
-    id: str = Field(default_factory=uuid.uuid4, alias='_id')
-    subject_id: str = Field(...)
-    time_created: str = Field(...)
-    time_updated: str = Field(...)
+    id: str
+    subject_id: str
+    time_created: Optional[datetime] = None
+    time_updated: Optional[datetime] = None
 
     class Config(object):
         """."""
@@ -19,6 +21,10 @@ class FItem(BaseModel):
         schema_extra = {
             'example': {
                 '_id': '066de609-b04a-4b30-b46c-32537c7f1f6e',
-                'subject_id': '123',
+                # 'subject_id': '123',
             },
+        }
+        json_encoders = {
+            # datetime: lambda v: v.timestamp(),
+            # uuid.UUID: str,
         }
