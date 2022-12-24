@@ -8,12 +8,23 @@ from pydantic.dataclasses import dataclass
 from dataclasses import field
 
 
-# @dataclass
-class Entity(BaseModel):
+
+class BaseElement(BaseModel):
     """."""
 
     typ: str
     id: str | None
+
+    time_created: datetime | None = Field(title='Time created')
+    time_updated: datetime | None = Field(title='Time created')
+
+# @dataclass
+class Entity(BaseElement):
+    """."""
+
+    typ: str
+    fid: str | None
+    subject_id: str | None
     time_created: datetime | None = Field(title='Time created')
     # time_updated: datetime | None = Field(..., title='The height in cm', ge=50, le=300)
 
@@ -38,6 +49,17 @@ class Entity(BaseModel):
 
 # @dataclass
 class EntityUpsertResult(BaseModel):
+    """."""
+
+    id: str
+
+class Link(BaseElement):
+    """."""
+
+    start_id: str
+    end_id: str
+
+class LinkUpsertResult(BaseModel):
     """."""
 
     id: str

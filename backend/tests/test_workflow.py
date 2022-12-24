@@ -12,10 +12,9 @@ def test_workflow__upsert__insert(client):
         id=str(uuid.uuid4()),
         subject_id=str(uuid.uuid4()),
     )
-    add_json = entity.dict()
     response = client.post(
         f'/api/{FL_MODULE_WORKDOMAIN}/v1/link',
-        json=add_json,
+        json=entity.dict(),
     )
     assert response.status_code == 200, response.text
 
