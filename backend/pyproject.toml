@@ -12,14 +12,14 @@ python = "^3.10"
 fastapi = "^0.88.0"
 httpx = "^0.23.1"
 uvicorn = "^0.20.0"
-motor = {extras = ["srv"], version = "^3.1.1"}
 pydantic = {extras = ["dotenv"], version = "^1.10.2"}
+asyncpg = "^0.27.0"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest-watch = "^4.2.0"
 wemake-python-styleguide = "^0.17.0"
 pytest-dotenv = "^0.5.2"
+pytest-watcher = "^0.2.6"
 
 [build-system]
 requires = ["poetry-core"]

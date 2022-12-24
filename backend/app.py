@@ -1,7 +1,7 @@
 """."""
 from fastapi import FastAPI
 from base.routes import router as base_router
-from workflow.routes import router as workflow_router
+from workdomain.routes import router as workflow_router
 
 
 def create_app():

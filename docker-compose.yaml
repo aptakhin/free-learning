@@ -26,8 +26,19 @@ services:
     #   - backend:/usr/src/app
     ports:
       - "8000:8000"
+    # environment:
+      # DATABASE_URL: psycopg2://postgres:postgres@0.0.0.0:5455/postgres
+
+  age:
+    image: apache/age:v1.1.0
+    restart: unless-stopped
+    ports:
+      - 5455:5432
+    # volumes:
+      # - ./data:/data
     environment:
-      DATABASE_URL: mongodb://root:root@0.0.0.0:27017/test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
 volumes:
   backend:

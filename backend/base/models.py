@@ -3,17 +3,19 @@ from datetime import datetime
 from typing import Optional
 import uuid
 
-from pymongo.results import InsertOneResult
-from pydantic import BaseModel, Field
+from pydantic import Field, BaseModel
+from pydantic.dataclasses import dataclass
+from dataclasses import field
 
 
+# @dataclass
 class Entity(BaseModel):
     """."""
 
+    typ: str
     id: str | None
-    subject_id: str
-    time_created: datetime | None # = Field(default_factory=datetime.utcnow)
-    time_updated: datetime | None # = Field(default_factory=datetime.utcnow)
+    time_created: datetime | None = Field(title='Time created')
+    # time_updated: datetime | None = Field(..., title='The height in cm', ge=50, le=300)
 
     def insert_dict(self) -> dict:
         make_insert_dict = self.dict()
@@ -34,6 +36,7 @@ class Entity(BaseModel):
         }
 
 
+# @dataclass
 class EntityUpsertResult(BaseModel):
     """."""
 

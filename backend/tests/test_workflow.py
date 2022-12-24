@@ -2,11 +2,11 @@
 
 import uuid
 
-from base.config import FL_MODULE_BASE
 from base.models import Entity
+from base.config import FL_MODULE_WORKDOMAIN
 
 
-def test_entity__upsert__insert(client, test_org):
+def test_workflow__upsert__insert(client):
     entity = Entity(
         typ='hello',
         id=str(uuid.uuid4()),
@@ -14,10 +14,11 @@ def test_entity__upsert__insert(client, test_org):
     )
     add_json = entity.dict()
     response = client.post(
-        f'/api/{FL_MODULE_BASE}/v1/upsert-entity',
+        f'/api/{FL_MODULE_WORKDOMAIN}/v1/link',
         json=add_json,
     )
     assert response.status_code == 200, response.text
 
     js = response.json()
+    print(js)
     assert js['id'], js

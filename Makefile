@@ -5,10 +5,10 @@ run:
 	docker compose up --build -d
 
 run-infra:
-	docker compose up --build -d mongodb mongo-express
+	docker compose up --build -d age --env-file .env
 
 run-backendw:
-	(cd backend && poetry run uvicorn fl_core.app:app --reload)
+	(cd backend && poetry run uvicorn app:app --reload)
 
 stop:
 	docker compose stop
