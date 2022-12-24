@@ -1,16 +1,15 @@
 from pydantic import BaseSettings
-# from pydantic.env_settings import SettingsSourceCallable
 
 
 class Settings(BaseSettings):
     """Settings."""
+
     db_url: str
     self_url: str
 
-    class Config:
+    class Config(object):
         env_file = '.env'
 
-        # env_prefix = 'FL_BACKEND_'
         fields = {
             'db_url': {
                 'env': 'FL_BACKEND_DATABASE_URL',
@@ -21,9 +20,14 @@ class Settings(BaseSettings):
         }
 
 
-def get_settings():
+def get_settings():  # noqa: D103
     return Settings()
 
 
-FL_MODULE_BASE = 'base.freelearning.org'
-FL_MODULE_WORKDOMAIN = 'workdomain.freelearning.org'
+FL_MODULE_BASE = 'com.freelearning.base'
+FL_MODULE_WORKDOMAIN = 'com.freelearning.workdomain'
+
+FL_MODULE_BASE_ENTITY = 'com.freelearning.base.entity'
+FL_MODULE_BASE_TAG = 'com.freelearning.base.tag'
+FL_MODULE_BASE_ALIAS = 'com.freelearning.base.alias'
+FL_MODULE_BASE_LINK_CHILD_OF = 'com.freelearning.base.CHILD_OF'

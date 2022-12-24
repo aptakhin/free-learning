@@ -1,11 +1,14 @@
 """."""
 
+import logging
 from fastapi import APIRouter, Depends
 from base.config import Settings, FL_MODULE_BASE
 from base.db_age import make_properties, make_label
 from base.db import get_db
 from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix='/api/{FL_MODULE_BASE}/v1',
@@ -25,8 +28,11 @@ async def upsert_entity(
         CREATE (a :{label} {properties})
         RETURN a
     $$) as (a agtype);"""
+
+    logger.debug('Insert link query:', QUERY)
     result_row = await db.fetchval(QUERY)
-    print(result_row, 'X')
+    logger.debug('Insert link query result:', result_row)
+
     return EntityUpsertResult(
         id=result_row['id'],
     )
@@ -41,16 +47,15 @@ async def upsert_link(
 
     label = make_label(link.typ)
     properties = make_properties(link.dict(exclude_none=True, exclude={'typ', 'start_id', 'end_id'}))
- # :`com.freelearning.hello`
     QUERY = f"""SELECT * FROM cypher('msft', $$
         MATCH (a), (b)
-        WHERE a.fid = '{link.start_id}' AND b.fid = '{link.end_id}'
-        CREATE (a)-[e :HELLO {properties}]->(b)
+        WHERE id(a) = {link.start_id} AND id(b) = {link.end_id}
+        CREATE (a)-[e :{label} {properties}]->(b)
         RETURN e
     $$) as (items agtype);"""
-    print(QUERY)
+    logger.debug('Insert link query:', QUERY)
     result_row = await db.fetchval(QUERY)
-    print(result_row)
+    logger.debug('Insert link query result:', result_row)
 
     return LinkUpsertResult(
         id=result_row['id'],

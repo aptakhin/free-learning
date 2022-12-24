@@ -1,12 +1,7 @@
 """."""
 from datetime import datetime
-from typing import Optional
-import uuid
 
-from pydantic import Field, BaseModel
-from pydantic.dataclasses import dataclass
-from dataclasses import field
-
+from pydantic import Extra, Field, BaseModel
 
 
 class BaseElement(BaseModel):
@@ -14,19 +9,19 @@ class BaseElement(BaseModel):
 
     typ: str
     id: str | None
+    version: int | None
 
     time_created: datetime | None = Field(title='Time created')
     time_updated: datetime | None = Field(title='Time created')
 
-# @dataclass
+
 class Entity(BaseElement):
     """."""
 
     typ: str
-    fid: str | None
+    id: int | None
     subject_id: str | None
     time_created: datetime | None = Field(title='Time created')
-    # time_updated: datetime | None = Field(..., title='The height in cm', ge=50, le=300)
 
     def insert_dict(self) -> dict:
         make_insert_dict = self.dict()
@@ -43,23 +38,25 @@ class Entity(BaseElement):
         }
         json_encoders = {
             datetime: lambda v: v.timestamp(),
-            # uuid.UUID: str,
         }
 
 
-# @dataclass
 class EntityUpsertResult(BaseModel):
     """."""
 
-    id: str
+    id: int
+
 
 class Link(BaseElement):
     """."""
 
-    start_id: str
-    end_id: str
+    start_id: int
+    end_id: int
+
+    class Config(object):
+        extra = Extra.forbid
 
 class LinkUpsertResult(BaseModel):
     """."""
 
-    id: str
+    id: int
