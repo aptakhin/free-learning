@@ -20,9 +20,11 @@ def dumps(_: ...):
 
 
 def make_properties(obj: dict[str, ...]) -> str:
+    """Makes properties."""
     properties_str = ', '.join(f'{k}: {repr(v)}' for k, v in obj.items())
-    return '\\{0}\\}'.format(properties_str)
+    return r'{{0}}'.format(properties_str)
 
 
 def make_label(obj: str) -> str:
+    """Makes label."""
     return '`{0}`'.format(obj)
