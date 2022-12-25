@@ -1,14 +1,13 @@
 """."""
 
 import asyncpg
-from fastapi import Depends
-from base.db_age import loads as age_loads, dumps as age_dumps
 from base.config import Settings, get_settings
+from base.db_age import dumps as age_dumps, loads as age_loads
+from fastapi import Depends
 
 
-async def get_db(settings: Settings = Depends(get_settings)):
+async def get_db(settings: Settings = Depends(get_settings)):  # noqa: B008
     """Retrieves db client."""
-
     conn = await asyncpg.connect(settings.db_url)
 
     await conn.execute('CREATE EXTENSION IF NOT EXISTS age')

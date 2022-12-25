@@ -7,12 +7,12 @@ from pydantic import Extra, Field, BaseModel
 class BaseElement(BaseModel):
     """."""
 
-    typ: str
-    id: str | None
-    version: int | None
+    typ: str = Field(..., alias='type')
+    id: str | None = Field(title='Identifier')
+    version: int | None = Field(title='Element version')
 
     time_created: datetime | None = Field(title='Time created')
-    time_updated: datetime | None = Field(title='Time created')
+    time_updated: datetime | None = Field(title='Time updated')
 
 
 class Entity(BaseElement):
@@ -53,8 +53,6 @@ class Link(BaseElement):
     start_id: int
     end_id: int
 
-    class Config(object):
-        extra = Extra.forbid
 
 class LinkUpsertResult(BaseModel):
     """."""

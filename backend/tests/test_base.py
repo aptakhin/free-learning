@@ -1,7 +1,5 @@
 """."""
 
-import uuid
-
 from base.config import FL_MODULE_BASE, FL_MODULE_BASE_LINK_CHILD_OF
 from base.models import Entity, Link
 
