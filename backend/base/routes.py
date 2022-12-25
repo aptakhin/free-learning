@@ -2,7 +2,7 @@
 
 import logging
 from fastapi import APIRouter, Depends
-from base.db_age import make_properties, make_label
+from base.db_age import make_properties, make_label, dumps as age_dumps, loads as age_loads
 from base.db import get_db
 from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult
 
@@ -29,8 +29,15 @@ async def upsert_entity(
         RETURN a
     $$) as (a agtype);"""
 
+    print(db, type(db))
     logger.debug('Insert link query:', query)
-    result_row = await db.fetchval(query)
+    async with db._engine.begin() as conn:
+        from sqlalchemy.sql import text
+        result = await conn.execute(text(query))
+        result_raw, = result.one()
+        result_row = age_loads(result_raw)
+        print('X', result, result_row, type(result_row))
+    # result_row = await db.fetchval(query)
     logger.debug('Insert link query result:', result_row)
 
     return EntityUpsertResult(
@@ -53,7 +60,12 @@ async def upsert_link(
         RETURN e
     $$) as (items agtype);"""
     logger.debug('Insert link query:', query)
-    result_row = await db.fetchval(query)
+    async with db._engine.begin() as conn:
+        from sqlalchemy.sql import text
+        result = await conn.execute(text(query))
+        result_raw, = result.one()
+        result_row = age_loads(result_raw)
+        print('X', result, result_row, type(result_row))
     logger.debug('Insert link query result:', result_row)
 
     return LinkUpsertResult(

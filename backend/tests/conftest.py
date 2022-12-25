@@ -5,7 +5,7 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app import create_app
-from base.config import FL_MODULE_BASE, FL_MODULE_BASE_ENTITY
+from base.config import FL_MODULE_BASE, FL_MODULE_BASE_ENTITY, Settings
 from base.db import get_db
 from base.models import Entity
 
@@ -53,13 +53,6 @@ def saved_entity2(client, unsaved_entity):
     yield response2.json()
 
 
-from sqlalchemy import event
-from sqlalchemy.orm import sessionmaker
-from app.db.session import engine
-import pytest
-import app.tests.config
-
-
 @pytest.fixture
 async def database_conn():
     yield get_db(Settings())
@@ -67,30 +60,25 @@ async def database_conn():
 
 @pytest.fixture(
     scope='function',
-    autouse=True
+    autouse=True,
 )
-def db(database_conn):
+async def db(database_conn):
     """
-    SQLAlchemy session started with SAVEPOINT
-    After test rollback to this SAVEPOINT
-    """
-    # connection = engine(
-    #     app.tests.config.get_test_config()
-    # ).connect()
+    SQLAlchemy session started with SAVEPOINT.
 
+    After test rollback to this SAVEPOINT.
+    """
     # begin a non-ORM transaction
-    trans = database_conn.begin()
+    trans = await database_conn.begin()
     session = sessionmaker()(bind=database_conn)
 
     session.begin_nested()  # SAVEPOINT
 
-    app.tests.config.session = session  # Inject session to the server code under test
+    # app.tests.config.session = session  # Inject session to the server code under test
 
-    @event.listens_for(app.tests.config.session, "after_transaction_end")
+    @event.listens_for(session, 'after_transaction_end')
     def restart_savepoint(session, transaction):
-        """
-        Each time that SAVEPOINT ends, reopen it
-        """
+        """Each time that SAVEPOINT ends, reopen it."""
         if transaction.nested and not transaction._parent.nested:
             session.begin_nested()
 

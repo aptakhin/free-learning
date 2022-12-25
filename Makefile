@@ -20,7 +20,7 @@ make test-backend:
 	(cd backend && PYTHONPATH=. poetry run pytest)
 
 make test-backendw:
-	(cd backend && PYTHONPATH=. poetry run ptw .)
+	(cd backend && PYTHONPATH=. poetry run ptw . --now)
 
 make lint-backend:
 	(cd backend && PYTHONPATH=. poetry run flake8)

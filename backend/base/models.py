@@ -7,7 +7,7 @@ from pydantic import Extra, Field, BaseModel
 class BaseElement(BaseModel):
     """."""
 
-    typ: str = Field(..., alias='type')
+    typ: str = Field(...)
     id: str | None = Field(title='Identifier')
     version: int | None = Field(title='Element version')
 
@@ -17,11 +17,6 @@ class BaseElement(BaseModel):
 
 class Entity(BaseElement):
     """."""
-
-    typ: str
-    id: int | None
-    subject_id: str | None
-    time_created: datetime | None = Field(title='Time created')
 
     def insert_dict(self) -> dict:
         make_insert_dict = self.dict()
@@ -58,3 +53,7 @@ class LinkUpsertResult(BaseModel):
     """."""
 
     id: int
+
+
+class Rule(BaseElement):
+    """."""
