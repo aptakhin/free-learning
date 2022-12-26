@@ -1,11 +1,10 @@
 """."""
-import asyncio
 import logging
 import pytest
 
-from conftest import make_linked
 from base.models import Entity, Link, EntityQuery
 from base.config import FL_MODULE_BASE, FL_MODULE_BASE_LINK_CHILD_OF
+from conftest import make_linked
 
 
 def test_entity__upsert__insert(client, unsaved_entity: Entity):

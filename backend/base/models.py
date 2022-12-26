@@ -28,7 +28,6 @@ class Entity(BaseElement):
             },
         }
         json_encoders = {
-            datetime: lambda v: v.timestamp(),
         }
 
 
@@ -59,8 +58,11 @@ class Rule(BaseElement):
 
 class EntityQuery(BaseModel):
     """."""
+
     query: str
+
 
 class EntityQueryResult(BaseModel):
     """."""
+
     result: list

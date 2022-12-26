@@ -11,6 +11,7 @@ from base.db import Database
 from base.models import Entity, Link
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.sql import text
 
 
 logger = logging.getLogger(__name__)
@@ -20,21 +21,16 @@ class ApacheAgeDatabase(Database):
     """."""
 
     def __init__(self, engine):
+        """."""
         self._engine = engine
         self._prep_statement_counter = 0
 
-    @staticmethod
-    async def create_engine(dsn: str):
-        engine = create_async_engine(
-            dsn,
-            echo=False,
-            # pool_size=20,
-            # logging_name='test',
-            # statement_cache_size=0,
-        )
+    @classmethod
+    async def create_engine(cls, dsn: str):
+        engine = create_async_engine(dsn)
 
         @event.listens_for(engine.sync_engine, 'connect')
-        def register_custom_types(dbapi_connection, *args, **kwargs):
+        def register_types(dbapi_connection, *args):  # noqa: WPS430
             dbapi_connection.run_async(
                 lambda asyncpg_conn: asyncpg_conn.set_type_codec(
                     'agtype',
@@ -45,15 +41,17 @@ class ApacheAgeDatabase(Database):
             )
 
         async with engine.begin() as conn:
-            from sqlalchemy.sql import text
-
             await conn.execute(text('CREATE EXTENSION IF NOT EXISTS age'))
             await conn.execute(text("LOAD 'age'"))
-            await conn.execute(text('SET search_path = ag_catalog, "$user", public'))
+            await conn.execute(text(
+                'SET search_path = ag_catalog, '
+                '"$user", public',
+            ))
 
         return ApacheAgeDatabase(engine)
 
     async def close(self):
+        """Close connection."""
         await self._engine.dispose()
 
     async def upsert_entity(self, entity: Entity):
@@ -66,7 +64,6 @@ class ApacheAgeDatabase(Database):
 
         logger.debug('Insert link query')
         async with self._engine.begin() as conn:
-            from sqlalchemy.sql import text
             result = await conn.execute(text(query))
             result_row, = result.one()
         logger.debug('Insert link query result')
@@ -94,9 +91,8 @@ class ApacheAgeDatabase(Database):
         $$, $1) as (items agtype);"""
         logger.debug('Upsert link query')
         async with self._engine.begin() as conn:
-            from sqlalchemy.sql import text
             result = await conn.execute(text(prep_query))
-            result = await conn.execute(text('EXECUTE upsert_link_procedure_{0}(\'{1}\');'.format(self._prep_statement_counter, param_obj_str)))
+            result = await conn.execute(text("EXECUTE upsert_link_procedure_{0}('{1}');".format(self._prep_statement_counter, param_obj_str)))
             result_row = result.scalar_one()
 
         self._prep_statement_counter += 1
@@ -113,11 +109,9 @@ class ApacheAgeDatabase(Database):
         $$, $1) as (items agtype);"""
         logger.debug('Insert link query')
         async with self._engine.begin() as conn:
-            from sqlalchemy.sql import text
             result = await conn.execute(text(prep_query))
-
             param_obj_str = json.dumps({'query_id': query_id})
-            result = await conn.execute(text('EXECUTE query_linked_procedure_{0}(\'{1}\')'.format(self._prep_statement_counter, param_obj_str)))
+            result = await conn.execute(text("EXECUTE query_linked_procedure_{0}('{1}')".format(self._prep_statement_counter, param_obj_str)))
             result_raw = result.all()
             result = [x[0] for x in result_raw]
         logger.debug('Insert link query result')
@@ -126,23 +120,19 @@ class ApacheAgeDatabase(Database):
 
 
 def loads(expr: str):
-    """Loads AGE type."""
     expr = expr.replace('::vertex', '')
     expr = expr.replace('::edge', '')
     return json.loads(expr)
 
 
 def dumps(_: ...):
-    """Dumps AGE type."""
     pass
 
 
 def make_properties(obj: dict[str, ...]) -> str:
-    """Makes properties."""
-    properties_str = ', '.join(f'{k}: {repr(v)}' for k, v in obj.items())
+    properties_str = ', '.join('{0}: {1}'.format(k, repr(v)) for k, v in obj.items())  # noqa: WPS111
     return '{{{0}}}'.format(properties_str)
 
 
 def make_label(obj: str) -> str:
-    """Makes label."""
     return '`{0}`'.format(obj)

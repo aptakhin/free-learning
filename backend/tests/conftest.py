@@ -1,19 +1,17 @@
 """."""
 
-import logging
-import logging.config
+import logging.config  # noqa: WPS301
 import uuid
 
 from app import create_app
-from base.config import FL_MODULE_BASE, FL_MODULE_BASE_ENTITY, Settings, FL_MODULE_BASE_LINK_CHILD_OF
+from base.config import (
+    FL_MODULE_BASE, FL_MODULE_BASE_ENTITY,
+    Settings, FL_MODULE_BASE_LINK_CHILD_OF,
+)
 from base.db import get_db
 from base.models import Entity, Link
 from fastapi.testclient import TestClient
 import pytest
-from sqlalchemy import event
-
-
-logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -94,6 +92,7 @@ async def make_linked(db):
 async def db(database_conn):
     yield database_conn
 
+
 @pytest.fixture(scope='session', autouse=True)
 def logger():
     logging.config.dictConfig({
@@ -109,8 +108,9 @@ def logger():
         },
         'formatters': {
             'default': {
-                'format': '%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
-                'datefmt': '%Y-%m-%d %H:%M:%S',
+                'format': '%(asctime)s %(levelname)-8s '
+                '%(name)-15s %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S',  # noqa: WPS323
             },
         },
         'loggers': {
@@ -129,36 +129,3 @@ def logger():
         },
     })
     yield
-
-
-# @pytest.fixture(scope='function', autouse=False)
-# async def db(database_conn):
-#     """
-#     SQLAlchemy session started with SAVEPOINT.
-
-#     After test rollback to this SAVEPOINT.
-#     """
-    # # begin a non-ORM transaction
-    # trans = await database_conn.begin()
-    # session = sessionmaker()(bind=database_conn)
-
-    # session.begin_nested()  # SAVEPOINT
-    # logger.debug('begin_nested')
-
-
-    # # await trans.execute(text('dd'))
-    # # await conn.execute(text("SELECT * FROM ag_catalog.drop_graph('msft', true)"))
-    # # await conn.execute(text("SELECT * FROM ag_catalog.create_graph('msft')"))
-
-    # @event.listens_for(session, 'after_transaction_end')
-    # def restart_savepoint(session, transaction):
-    #     """Each time that SAVEPOINT ends, reopen it."""
-    #     logger.debug('restart_savepoint')
-    #     if transaction.nested and not transaction._parent.nested:
-    #         session.begin_nested()
-
-    # yield session
-
-    # logger.debug('Close session')
-    # session.close()
-    # trans.rollback()  # roll back to the SAVEPOINT
