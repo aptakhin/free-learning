@@ -5,55 +5,128 @@ As standard python age had running problems.
 """
 
 import json
+import logging
 
-import asyncpg
-from base.config import Settings, get_settings
-# from base.db_age import dumps as age_dumps, loads as age_loads
-from fastapi import Depends
+from base.db import Database
+from base.models import Entity, Link
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from base.db import Database
+
+logger = logging.getLogger(__name__)
+
 
 class ApacheAgeDatabase(Database):
+    """."""
+
     def __init__(self, engine):
         self._engine = engine
+        self._prep_statement_counter = 0
 
     @staticmethod
     async def create_engine(dsn: str):
         engine = create_async_engine(
             dsn,
-            echo=True,
+            echo=False,
+            # pool_size=20,
+            # logging_name='test',
+            # statement_cache_size=0,
         )
+
+        @event.listens_for(engine.sync_engine, 'connect')
+        def register_custom_types(dbapi_connection, *args, **kwargs):
+            dbapi_connection.run_async(
+                lambda asyncpg_conn: asyncpg_conn.set_type_codec(
+                    'agtype',
+                    encoder=dumps,
+                    decoder=loads,
+                    schema='ag_catalog',
+                ),
+            )
 
         async with engine.begin() as conn:
             from sqlalchemy.sql import text
+
             await conn.execute(text('CREATE EXTENSION IF NOT EXISTS age'))
             await conn.execute(text("LOAD 'age'"))
             await conn.execute(text('SET search_path = ag_catalog, "$user", public'))
-            # await conn.execute(text("SELECT * FROM ag_catalog.drop_graph('msft', true)"))
-            # await conn.execute(text("SELECT * FROM ag_catalog.create_graph('msft')"))
 
-            # @event.listens_for(engine.sync_engine, 'connect')
-            # def register_custom_types(dbapi_connection):
-            #     print('Register comm')
-            #     dbapi_connection.run_async(
-            #         lambda connection: connection.set_type_codec(
-            #             'agtype',
-            #             encoder=age_dumps,
-            #             decoder=age_loads,
-            #             schema='ag_catalog',
-            #         ),
-            #     )
         return ApacheAgeDatabase(engine)
 
     async def close(self):
         await self._engine.dispose()
 
+    async def upsert_entity(self, entity: Entity):
+        label = make_label(entity.typ)
+        properties = make_properties(entity.dict(exclude_none=True, exclude={'typ'}))
+        query = f"""SELECT * FROM cypher('msft', $$
+            CREATE (a :{label} {properties})
+            RETURN a
+        $$) as (a agtype);"""
+
+        logger.debug('Insert link query')
+        async with self._engine.begin() as conn:
+            from sqlalchemy.sql import text
+            result = await conn.execute(text(query))
+            result_row, = result.one()
+        logger.debug('Insert link query result')
+        return result_row
+
+    async def upsert_link(self, link: Link):
+        label = make_label(link.typ)
+        properties = make_properties(link.dict(exclude_none=True, exclude={'typ', 'start_id', 'end_id'}))
+
+        param_obj = {
+            'link_start_id': link.start_id,
+            'link_end_id': link.end_id,
+            'label': label,
+            'properties': properties,
+        }
+        param_obj_str = json.dumps(param_obj)
+        logger.debug('Upsert link query result: %s', param_obj_str)
+        prep_query = f"""
+            PREPARE upsert_link_procedure_{self._prep_statement_counter}(agtype) AS
+            SELECT * FROM cypher('msft', $$
+            MATCH (a), (b)
+            WHERE id(a) = $link_start_id AND id(b) = $link_end_id
+            CREATE (a)-[e :{label} {properties}]->(b)
+            RETURN e
+        $$, $1) as (items agtype);"""
+        logger.debug('Upsert link query')
+        async with self._engine.begin() as conn:
+            from sqlalchemy.sql import text
+            result = await conn.execute(text(prep_query))
+            result = await conn.execute(text('EXECUTE upsert_link_procedure_{0}(\'{1}\');'.format(self._prep_statement_counter, param_obj_str)))
+            result_row = result.scalar_one()
+
+        self._prep_statement_counter += 1
+        return result_row
+
+    async def query_linked(self, query: str):
+        query_id = int(query)
+        prep_query = f"""
+            PREPARE query_linked_procedure_{self._prep_statement_counter}(agtype) AS
+            SELECT * FROM cypher('msft', $$
+            MATCH (a:`com.freelearning.base.entity`)-[r:`com.freelearning.base.CHILD_OF`]-(b)
+            WHERE id(a) = $query_id
+            RETURN r
+        $$, $1) as (items agtype);"""
+        logger.debug('Insert link query')
+        async with self._engine.begin() as conn:
+            from sqlalchemy.sql import text
+            result = await conn.execute(text(prep_query))
+
+            param_obj_str = json.dumps({'query_id': query_id})
+            result = await conn.execute(text('EXECUTE query_linked_procedure_{0}(\'{1}\')'.format(self._prep_statement_counter, param_obj_str)))
+            result_raw = result.all()
+            result = [x[0] for x in result_raw]
+        logger.debug('Insert link query result')
+        self._prep_statement_counter += 1
+        return result
+
 
 def loads(expr: str):
     """Loads AGE type."""
-    print(expr, type(expr))
     expr = expr.replace('::vertex', '')
     expr = expr.replace('::edge', '')
     return json.loads(expr)

@@ -1,13 +1,13 @@
 """."""
 from datetime import datetime
 
-from pydantic import Extra, Field, BaseModel
+from pydantic import Field, BaseModel
 
 
 class BaseElement(BaseModel):
     """."""
 
-    typ: str = Field(...)
+    typ: str = Field(..., title='Fully-qualified type')
     id: str | None = Field(title='Identifier')
     version: int | None = Field(title='Element version')
 
@@ -17,10 +17,6 @@ class BaseElement(BaseModel):
 
 class Entity(BaseElement):
     """."""
-
-    def insert_dict(self) -> dict:
-        make_insert_dict = self.dict()
-        return make_insert_dict
 
     class Config(object):
         """."""
@@ -48,6 +44,8 @@ class Link(BaseElement):
     start_id: int
     end_id: int
 
+    text: str
+
 
 class LinkUpsertResult(BaseModel):
     """."""
@@ -57,3 +55,12 @@ class LinkUpsertResult(BaseModel):
 
 class Rule(BaseElement):
     """."""
+
+
+class EntityQuery(BaseModel):
+    """."""
+    query: str
+
+class EntityQueryResult(BaseModel):
+    """."""
+    result: list
