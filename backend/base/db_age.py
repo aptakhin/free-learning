@@ -6,6 +6,7 @@ As standard python age had running problems.
 
 import json
 import logging
+from typing import Optional
 
 from base.db import Database
 from base.models import Entity, Link
@@ -56,9 +57,11 @@ class ApacheAgeDatabase(Database):
 
     async def upsert_entity(self, entity: Entity):
         label = make_label(entity.typ)
-        properties = make_properties(entity.dict(exclude_none=True, exclude={'typ'}))
+        prepared_dict = entity.dict(exclude_none=True, exclude={'typ', 'properties'})
+        prepared_dict.update(entity.properties)
+        properties = make_properties(prepared_dict)
         query = f"""SELECT * FROM cypher('msft', $$
-            CREATE (a :{label} {properties})
+            CREATE (a {label} {properties})
             RETURN a
         $$) as (a agtype);"""
 
@@ -86,7 +89,7 @@ class ApacheAgeDatabase(Database):
             SELECT * FROM cypher('msft', $$
             MATCH (a), (b)
             WHERE id(a) = $link_start_id AND id(b) = $link_end_id
-            CREATE (a)-[e :{label} {properties}]->(b)
+            CREATE (a)-[e {label} {properties}]->(b)
             RETURN e
         $$, $1) as (items agtype);"""
         logger.debug('Upsert link query')
@@ -98,19 +101,51 @@ class ApacheAgeDatabase(Database):
         self._prep_statement_counter += 1
         return result_row
 
-    async def query_linked(self, query: str):
-        query_id = int(query)
+    async def query_linked(
+        self,
+        start_entity_id: Optional[int] = None,
+        start_entity_label: Optional[str] = None,
+        start_entity_properties: Optional[dict] = None,
+        link_label: Optional[str] = None,
+        link_properties: Optional[dict] = None,
+        end_entity_id: Optional[int] = None,
+        end_entity_label: Optional[str] = None,
+        end_entity_properties: Optional[dict] = None,
+    ):
+        cond = []
+        params = {}
+
+        if start_entity_id:
+            cond.append('id(a) = $start_entity_id')
+            params['start_entity_id'] = start_entity_id
+        if end_entity_id:
+            if cond:
+                cond.append('AND')
+            cond.append('id(b) = $end_entity_id')
+            params['end_entity_id'] = end_entity_id
+
+        where_cond = ''
+        if cond:
+            where_cond = 'WHERE ' + ' '.join(cond)
+
+#         prep_query = f"""
+#             PREPARE query_linked_procedure_{self._prep_statement_counter}(agtype) AS
+#             SELECT * FROM cypher('msft', $$
+#             MATCH (director)-[r:`com.freelearning.base.NEXT_OF`]->(movie)
+# RETURN movie
+#         $$, $1) as (items agtype);"""
+
         prep_query = f"""
             PREPARE query_linked_procedure_{self._prep_statement_counter}(agtype) AS
             SELECT * FROM cypher('msft', $$
-            MATCH (a:`com.freelearning.base.entity`)-[r:`com.freelearning.base.CHILD_OF`]-(b)
-            WHERE id(a) = $query_id
-            RETURN r
+            MATCH (a{make_label(start_entity_label)} {make_properties(start_entity_properties)})-[r{make_label(link_label)} {make_properties(link_properties)}]->(b{make_label(end_entity_label)} {make_properties(end_entity_properties)})
+            {where_cond}
+            RETURN [a, r, b]
         $$, $1) as (items agtype);"""
         logger.debug('Insert link query')
         async with self._engine.begin() as conn:
             result = await conn.execute(text(prep_query))
-            param_obj_str = json.dumps({'query_id': query_id})
+            param_obj_str = json.dumps(params)
             result = await conn.execute(text("EXECUTE query_linked_procedure_{0}('{1}')".format(self._prep_statement_counter, param_obj_str)))
             result_raw = result.all()
             result = [x[0] for x in result_raw]
@@ -129,10 +164,12 @@ def dumps(_: ...):
     pass
 
 
-def make_properties(obj: dict[str, ...]) -> str:
+def make_properties(obj: Optional[dict[str, ...]]) -> str:
+    if obj is None:
+        return ''
     properties_str = ', '.join('{0}: {1}'.format(k, repr(v)) for k, v in obj.items())  # noqa: WPS111
     return '{{{0}}}'.format(properties_str)
 
 
-def make_label(obj: str) -> str:
-    return '`{0}`'.format(obj)
+def make_label(obj: Optional[str]) -> str:
+    return ':`{0}`'.format(obj) if obj is not None else ''

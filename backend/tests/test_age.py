@@ -21,4 +21,4 @@ def test_properties_make():
 
 
 def test_make_label():
-    assert make_label('hello.world') == '`hello.world`'
+    assert make_label('hello.world') == ':`hello.world`'

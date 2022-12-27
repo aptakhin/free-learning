@@ -29,13 +29,29 @@ async def upsert_entity(
     )
 
 
-@router.get('/query-linked', response_model=EntityQueryResult)
+@router.get('/query-linked/', response_model=EntityQueryResult)
 async def query_linked(
-    query: Optional[str] = None,
+    start_entity_id: Optional[int] = None,
+    start_entity_label: Optional[str] = None,
+    start_entity_properties: Optional[dict] = None,
+    link_label: Optional[str] = None,
+    link_properties: Optional[dict] = None,
+    end_entity_id: Optional[int] = None,
+    end_entity_label: Optional[str] = None,
+    end_entity_properties: Optional[dict] = None,
     db=Depends(get_db),  # noqa: B008, WPS404
 ) -> EntityQueryResult:
     """Query entity."""
-    result = await db.query_linked(query)
+    result = await db.query_linked(
+        start_entity_id=start_entity_id,
+        start_entity_label=start_entity_label,
+        start_entity_properties=start_entity_properties,
+        link_label=link_label,
+        link_properties=link_properties,
+        end_entity_id=end_entity_id,
+        end_entity_label=end_entity_label,
+        end_entity_properties=end_entity_properties,
+    )
     return EntityQueryResult(
         result=result,
     )

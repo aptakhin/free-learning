@@ -29,5 +29,7 @@ FL_MODULE_WORKDOMAIN = 'com.freelearning.workdomain'
 
 FL_MODULE_BASE_ENTITY = 'com.freelearning.base.entity'
 FL_MODULE_BASE_TAG = 'com.freelearning.base.tag'
-FL_MODULE_BASE_ALIAS = 'com.freelearning.base.alias'
+FL_MODULE_BASE_WEB_ROUTE = 'com.freelearning.base.web_route'
+FL_MODULE_BASE_GROUP_ALIAS = 'com.freelearning.base.group_alias'
 FL_MODULE_BASE_LINK_CHILD_OF = 'com.freelearning.base.CHILD_OF'
+FL_MODULE_BASE_LINK_NEXT_OF = 'com.freelearning.base.NEXT_OF'

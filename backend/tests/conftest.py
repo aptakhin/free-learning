@@ -7,6 +7,7 @@ from app import create_app
 from base.config import (
     FL_MODULE_BASE, FL_MODULE_BASE_ENTITY,
     Settings, FL_MODULE_BASE_LINK_CHILD_OF,
+    FL_MODULE_BASE_WEB_ROUTE, FL_MODULE_BASE_LINK_NEXT_OF,
 )
 from base.db import get_db
 from base.models import Entity, Link
@@ -67,8 +68,24 @@ async def make_linked(db):
     entity = Entity(
         typ=FL_MODULE_BASE_ENTITY,
         subject_id=str(uuid.uuid4()),
+        properties={},
     )
     entity_row = await db.upsert_entity(entity)
+
+    web_route = Entity(
+        typ=FL_MODULE_BASE_WEB_ROUTE,
+        properties={
+            'route': 'web/test',
+        },
+    )
+    web_route_row = await db.upsert_entity(web_route)
+    link = Link(
+        typ=FL_MODULE_BASE_LINK_NEXT_OF,
+        start_id=web_route_row['id'],
+        end_id=entity_row['id'],
+        text='',
+    )
+    await db.upsert_link(link)
 
     for _ in range(10):
         entity2 = Entity(
@@ -76,7 +93,6 @@ async def make_linked(db):
             subject_id=str(uuid.uuid4()),
         )
         entity2_row = await db.upsert_entity(entity2)
-
         link = Link(
             typ=FL_MODULE_BASE_LINK_CHILD_OF,
             start_id=entity2_row['id'],
@@ -116,11 +132,11 @@ def logger():
         'loggers': {
             'root': {
                 'handlers': ['console'],
-                'level': 'DEBUG',
+                'level': 'ERROR',
             },
             'base': {
                 'handlers': ['console'],
-                'level': 'DEBUG',
+                'level': 'ERROR',
             },
             'sqlalchemy.engine': {
                 'handlers': ['console'],
@@ -129,3 +145,10 @@ def logger():
         },
     })
     yield
+
+
+@pytest.fixture(scope='function')
+def debug_log(caplog):
+    caplog.set_level(logging.DEBUG)
+
+    # yield
