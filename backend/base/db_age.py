@@ -9,7 +9,7 @@ import logging
 from typing import Optional
 
 from base.db import Database
-from base.models import Entity, Link
+from base.models import Entity, Link, EntityQuery
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.sql import text
@@ -79,8 +79,8 @@ class ApacheAgeDatabase(Database):
         param_obj = {
             'link_start_id': link.start_id,
             'link_end_id': link.end_id,
-            'label': label,
-            'properties': properties,
+            # 'label': label,
+            # 'properties': properties,
         }
         param_obj_str = json.dumps(param_obj)
         logger.debug('Upsert link query result: %s', param_obj_str)
@@ -103,26 +103,19 @@ class ApacheAgeDatabase(Database):
 
     async def query_linked(
         self,
-        start_entity_id: Optional[int] = None,
-        start_entity_label: Optional[str] = None,
-        start_entity_properties: Optional[dict] = None,
-        link_label: Optional[str] = None,
-        link_properties: Optional[dict] = None,
-        end_entity_id: Optional[int] = None,
-        end_entity_label: Optional[str] = None,
-        end_entity_properties: Optional[dict] = None,
+        q: EntityQuery,
     ):
         cond = []
         params = {}
 
-        if start_entity_id:
+        if q.start_entity_id:
             cond.append('id(a) = $start_entity_id')
-            params['start_entity_id'] = start_entity_id
-        if end_entity_id:
+            params['start_entity_id'] = int(q.start_entity_id)
+        if q.end_entity_id:
             if cond:
                 cond.append('AND')
             cond.append('id(b) = $end_entity_id')
-            params['end_entity_id'] = end_entity_id
+            params['end_entity_id'] = int(q.end_entity_id)
 
         where_cond = ''
         if cond:
@@ -138,7 +131,7 @@ class ApacheAgeDatabase(Database):
         prep_query = f"""
             PREPARE query_linked_procedure_{self._prep_statement_counter}(agtype) AS
             SELECT * FROM cypher('msft', $$
-            MATCH (a{make_label(start_entity_label)} {make_properties(start_entity_properties)})-[r{make_label(link_label)} {make_properties(link_properties)}]->(b{make_label(end_entity_label)} {make_properties(end_entity_properties)})
+            MATCH (a{make_label(q.start_entity_label)} {make_properties(q.start_entity_properties)})-[r{make_label(q.link_label)} {make_properties(q.link_properties)}]->(b{make_label(q.end_entity_label)} {make_properties(q.end_entity_properties)})
             {where_cond}
             RETURN [a, r, b]
         $$, $1) as (items agtype);"""

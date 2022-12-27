@@ -1,6 +1,7 @@
 """."""
 
 import logging.config  # noqa: WPS301
+import random
 import uuid
 
 from app import create_app
@@ -64,6 +65,15 @@ async def database_conn_iter():
         yield database_conn
 
 
+def generate_lorem_ipsum(num_paragraphs=1, num_sentences=5):
+    lorem_ipsum = ""
+    for i in range(num_paragraphs):
+        for j in range(num_sentences):
+            lorem_ipsum += "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+        lorem_ipsum += "\n\n"
+    return lorem_ipsum
+
+
 async def make_linked(db):
     entity = Entity(
         typ=FL_MODULE_BASE_ENTITY,
@@ -91,6 +101,9 @@ async def make_linked(db):
         entity2 = Entity(
             typ=FL_MODULE_BASE_ENTITY,
             subject_id=str(uuid.uuid4()),
+            properties={
+                'text': generate_lorem_ipsum(num_paragraphs=int(random.uniform(1, 5)), num_sentences=int(random.uniform(3, 10)))
+            }
         )
         entity2_row = await db.upsert_entity(entity2)
         link = Link(
@@ -140,7 +153,7 @@ def logger():
             },
             'sqlalchemy.engine': {
                 'handlers': ['console'],
-                'level': 'DEBUG',
+                'level': 'ERROR',
             },
         },
     })

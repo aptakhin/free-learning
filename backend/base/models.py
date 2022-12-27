@@ -62,12 +62,12 @@ class Rule(BaseElement):
 class EntityQuery(BaseModel):
     """."""
 
-    start_entity_id: Optional[int] = None
+    start_entity_id: Optional[str] = None
     start_entity_label: Optional[str] = None
     start_entity_properties: Optional[dict] = None
     link_label: Optional[str] = None
     link_properties: Optional[dict] = None
-    end_entity_id: Optional[int] = None
+    end_entity_id: Optional[str] = None
     end_entity_label: Optional[str] = None
     end_entity_properties: Optional[dict] = None
 

@@ -1,11 +1,12 @@
 """."""
 import json
 import logging
-import pytest
+import random
 
 from base.models import Entity, Link, EntityQuery
-from base.config import FL_MODULE_BASE, FL_MODULE_BASE_LINK_CHILD_OF, FL_MODULE_BASE_WEB_ROUTE, FL_MODULE_BASE_LINK_NEXT_OF
+from base.config import FL_MODULE_BASE_ENTITY, FL_MODULE_BASE, FL_MODULE_BASE_LINK_CHILD_OF, FL_MODULE_BASE_WEB_ROUTE, FL_MODULE_BASE_LINK_NEXT_OF
 from conftest import make_linked
+import pytest
 
 
 def test_entity__upsert__insert(client, unsaved_entity: Entity):
@@ -42,6 +43,9 @@ async def test_query(client, database_conn_iter):
     async for database_conn in database_conn_iter:
         root_entity = await make_linked(database_conn)
 
+    with open('dump.txt', 'wt') as f:
+        f.write(str(root_entity['id']))
+
     query = EntityQuery(
         end_entity_id=int(root_entity['id']),
         # from_entity_label=FL_MODULE_BASE_WEB_ROUTE,
@@ -49,9 +53,9 @@ async def test_query(client, database_conn_iter):
     )
     # print('z', query.dict())
     # logger.debug('Query args: %s', query.dict()))
-    response = client.get(
+    response = client.post(
         f'/api/{FL_MODULE_BASE}/v1/query-linked/',
-        params=query.dict(exclude_none=True),
+        json=query.dict(exclude_none=True),
     )
 
     assert response.status_code == 200, response.text
@@ -66,11 +70,11 @@ async def test_query__start_properties(client, database_conn_iter, debug_log):
     async for database_conn in database_conn_iter:
         root_entity = await make_linked(database_conn)
 
-        route_results = await database_conn.query_linked(
+        route_results = await database_conn.query_linked(EntityQuery(
             start_entity_label=FL_MODULE_BASE_WEB_ROUTE,
             start_entity_properties={'route': 'web/test'},
             link_label=FL_MODULE_BASE_LINK_NEXT_OF,
             end_entity_id=int(root_entity['id']),
-        )
+        ))
 
         assert len(route_results) == 1

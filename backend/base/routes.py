@@ -3,6 +3,7 @@
 import logging
 from typing import Optional
 
+from base.config import FL_MODULE_BASE
 from base.db import get_db
 from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery
 from fastapi import APIRouter, Depends
@@ -11,7 +12,7 @@ from fastapi import APIRouter, Depends
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix='/api/{FL_MODULE_BASE}/v1',
+    prefix=f'/api/{FL_MODULE_BASE}/v1',
     tags=['base'],
     responses={404: {'description': 'Not found'}},
 )
@@ -29,29 +30,13 @@ async def upsert_entity(
     )
 
 
-@router.get('/query-linked/', response_model=EntityQueryResult)
+@router.post('/query-linked/', response_model=EntityQueryResult)
 async def query_linked(
-    start_entity_id: Optional[int] = None,
-    start_entity_label: Optional[str] = None,
-    start_entity_properties: Optional[dict] = None,
-    link_label: Optional[str] = None,
-    link_properties: Optional[dict] = None,
-    end_entity_id: Optional[int] = None,
-    end_entity_label: Optional[str] = None,
-    end_entity_properties: Optional[dict] = None,
+    query: EntityQuery,
     db=Depends(get_db),  # noqa: B008, WPS404
 ) -> EntityQueryResult:
     """Query entity."""
-    result = await db.query_linked(
-        start_entity_id=start_entity_id,
-        start_entity_label=start_entity_label,
-        start_entity_properties=start_entity_properties,
-        link_label=link_label,
-        link_properties=link_properties,
-        end_entity_id=end_entity_id,
-        end_entity_label=end_entity_label,
-        end_entity_properties=end_entity_properties,
-    )
+    result = await db.query_linked(query)
     return EntityQueryResult(
         result=result,
     )
