@@ -1,13 +1,11 @@
 """."""
 
 import logging
-from typing import Optional
 
 from base.config import FL_MODULE_BASE
 from base.db import get_db
 from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery
 from fastapi import APIRouter, Depends
-
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +34,9 @@ async def query_linked(
     db=Depends(get_db),  # noqa: B008, WPS404
 ) -> EntityQueryResult:
     """Query entity."""
-    result = await db.query_linked(query)
+    query_result = await db.query_linked(query)
     return EntityQueryResult(
-        result=result,
+        query_result=query_result,
     )
 
 

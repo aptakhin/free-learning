@@ -1,3 +1,4 @@
 {
-    "flake8.importStrategy": "fromEnvironment"
+    "flake8.importStrategy": "fromEnvironment",
+    "python.envFile": "${workspaceFolder}/backend/.env"
 }

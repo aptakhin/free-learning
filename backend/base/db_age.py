@@ -14,7 +14,6 @@ from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.sql import text
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -65,11 +64,11 @@ class ApacheAgeDatabase(Database):
             RETURN a
         $$) as (a agtype);"""
 
-        logger.debug('Insert link query')
+        logger.debug('Insert link query: {}'.format(query))
         async with self._engine.begin() as conn:
             result = await conn.execute(text(query))
             result_row, = result.one()
-        logger.debug('Insert link query result')
+        logger.debug('Insert link query result: {0}'.format(result_row))
         return result_row
 
     async def upsert_link(self, link: Link):
@@ -83,7 +82,7 @@ class ApacheAgeDatabase(Database):
             # 'properties': properties,
         }
         param_obj_str = json.dumps(param_obj)
-        logger.debug('Upsert link query result: %s', param_obj_str)
+        logger.debug('Upsert link query result: {0}'.format(param_obj_str))
         prep_query = f"""
             PREPARE upsert_link_procedure_{self._prep_statement_counter}(agtype) AS
             SELECT * FROM cypher('msft', $$
@@ -92,12 +91,13 @@ class ApacheAgeDatabase(Database):
             CREATE (a)-[e {label} {properties}]->(b)
             RETURN e
         $$, $1) as (items agtype);"""
-        logger.debug('Upsert link query')
+        logger.debug('Upsert link query: {0}'.format(prep_query))
         async with self._engine.begin() as conn:
             result = await conn.execute(text(prep_query))
             result = await conn.execute(text("EXECUTE upsert_link_procedure_{0}('{1}');".format(self._prep_statement_counter, param_obj_str)))
             result_row = result.scalar_one()
 
+        logger.debug('Upsert link result: {0}'.format(result_row))
         self._prep_statement_counter += 1
         return result_row
 
@@ -121,13 +121,6 @@ class ApacheAgeDatabase(Database):
         if cond:
             where_cond = 'WHERE ' + ' '.join(cond)
 
-#         prep_query = f"""
-#             PREPARE query_linked_procedure_{self._prep_statement_counter}(agtype) AS
-#             SELECT * FROM cypher('msft', $$
-#             MATCH (director)-[r:`com.freelearning.base.NEXT_OF`]->(movie)
-# RETURN movie
-#         $$, $1) as (items agtype);"""
-
         prep_query = f"""
             PREPARE query_linked_procedure_{self._prep_statement_counter}(agtype) AS
             SELECT * FROM cypher('msft', $$
@@ -135,16 +128,16 @@ class ApacheAgeDatabase(Database):
             {where_cond}
             RETURN [a, r, b]
         $$, $1) as (items agtype);"""
-        logger.debug('Insert link query')
+        param_obj_str = json.dumps(params)
+        logger.debug('Insert link query: %s', prep_query)
+        logger.debug('    params: %s', param_obj_str)
         async with self._engine.begin() as conn:
-            result = await conn.execute(text(prep_query))
-            param_obj_str = json.dumps(params)
-            result = await conn.execute(text("EXECUTE query_linked_procedure_{0}('{1}')".format(self._prep_statement_counter, param_obj_str)))
-            result_raw = result.all()
-            result = [x[0] for x in result_raw]
-        logger.debug('Insert link query result')
+            await conn.execute(text(prep_query))
+            statement_exec_result = await conn.execute(text("EXECUTE query_linked_procedure_{0}('{1}')".format(self._prep_statement_counter, param_obj_str)))
+            query_result = [row.items for row in statement_exec_result]
+        logger.debug('Insert link query result: {0}'.format(json.dumps(query_result, indent=2)))
         self._prep_statement_counter += 1
-        return result
+        return query_result
 
 
 def loads(expr: str):

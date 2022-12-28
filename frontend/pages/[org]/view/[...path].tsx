@@ -15,10 +15,7 @@ export default function FirstPost({ count }) {
 
     const router = useRouter()
     const { org, path } = router.query
-
-
-
-    const entityId = path? path[1] : '0' // 844424930135849
+    const entityId = path? path[0] : '0' // 844424930135849
 
     const sendData = {
         start_properties: {'route': 'web/test'},
@@ -64,7 +61,7 @@ export default function FirstPost({ count }) {
     console.log('PID', org, path, entityId, isLoading, data, data2)
 
     if (isLoading) return <p>Loading...</p>
-    // if (!data) return <p>No profile data</p>
+    if (!data) return <p>No profile data</p>
     if (!data2) return <p>No profile data</p>
 
     const items = data.result?.[0]?.map((entry) =>
@@ -74,11 +71,6 @@ export default function FirstPost({ count }) {
     const items2 = data2.result?.map((entry) =>
         <li>{entry[2].id}: {entry[2].label} {JSON.stringify(entry[2].properties)} -- {entry[1].id}: {entry[1].label} {JSON.stringify(entry[1].properties)} -- {entry[0].id}: {entry[0].label} {JSON.stringify(entry[0].properties)}</li>
     );
-
-
-    if (isLoading) return <p>Loading...</p>
-    // if (!data) return <p>No profile data</p>
-    if (!data2) return <p>No profile data</p>
 
     return (
         <Layout>

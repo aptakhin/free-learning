@@ -66,15 +66,16 @@ async def database_conn_iter():
 
 
 def generate_lorem_ipsum(num_paragraphs=1, num_sentences=5):
-    lorem_ipsum = ""
-    for i in range(num_paragraphs):
-        for j in range(num_sentences):
-            lorem_ipsum += "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-        lorem_ipsum += "\n\n"
-    return lorem_ipsum
+    lorem_ipsum = []
+    for _ in range(num_paragraphs):
+        for _ in range(num_sentences):
+            lorem_ipsum.append('Lorem ipsum dolor sit amet, ')
+            lorem_ipsum.append('consectetur adipiscing elit. ')
+        lorem_ipsum.append('\n\n')
+    return ''.join(lorem_ipsum)
 
 
-async def make_linked(db):
+async def make_linked(db, *, num_link_to_root_entities: int):
     entity = Entity(
         typ=FL_MODULE_BASE_ENTITY,
         subject_id=str(uuid.uuid4()),
@@ -97,13 +98,16 @@ async def make_linked(db):
     )
     await db.upsert_link(link)
 
-    for _ in range(10):
+    for _ in range(num_link_to_root_entities):
         entity2 = Entity(
             typ=FL_MODULE_BASE_ENTITY,
             subject_id=str(uuid.uuid4()),
             properties={
-                'text': generate_lorem_ipsum(num_paragraphs=int(random.uniform(1, 5)), num_sentences=int(random.uniform(3, 10)))
-            }
+                'text': generate_lorem_ipsum(
+                    num_paragraphs=int(random.uniform(1, 5)),  # noqa: S311
+                    num_sentences=int(random.uniform(3, 10)),  # noqa: S311
+                ),
+            },
         )
         entity2_row = await db.upsert_entity(entity2)
         link = Link(
@@ -137,8 +141,8 @@ def logger():
         },
         'formatters': {
             'default': {
-                'format': '%(asctime)s %(levelname)-8s '
-                '%(name)-15s %(message)s',
+                'format': '{asctime} {levelname:8s} '
+                '{name:15s} {message}',
                 'datefmt': '%Y-%m-%d %H:%M:%S',  # noqa: WPS323
             },
         },

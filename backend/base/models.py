@@ -75,4 +75,4 @@ class EntityQuery(BaseModel):
 class EntityQueryResult(BaseModel):
     """."""
 
-    result: list
+    query_result: list
