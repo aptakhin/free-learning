@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Script from 'next/script';
 import Layout from '../components/layout';
-import axiosGetJsonData from './apis';
 
 import { useState, useEffect } from 'react'
 
