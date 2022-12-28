@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from workdomain.routes import router as workflow_router
 
 
-LOGGER_CONFIG = {
+base_logger_config = {
     'version': 1,
     'disable_existing_loggers': True,
     'handlers': {
@@ -23,6 +23,7 @@ LOGGER_CONFIG = {
         'default': {
             'format': '{asctime} {levelname:8s} {name:15s} {message}',
             'datefmt': '%Y-%m-%d %H:%M:%S',  # noqa: WPS323
+            'style': '{',
         },
     },
     'loggers': {
@@ -65,7 +66,7 @@ def create_app():
         """."""
         return {'status': True}
 
-    logging.config.dictConfig(LOGGER_CONFIG)
+    logging.config.dictConfig(base_logger_config)
     return app
 
 

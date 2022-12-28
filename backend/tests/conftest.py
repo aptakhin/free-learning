@@ -126,41 +126,44 @@ async def db(database_conn):
     yield database_conn
 
 
+base_logger_config = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+            'level': 'INFO',
+            'stream': 'ext://sys.stdout',
+        },
+    },
+    'formatters': {
+        'default': {
+            'format': '{asctime} {levelname:8s} {name:15s} {message}',
+            'datefmt': '%Y-%m-%d %H:%M:%S',  # noqa: WPS323
+            'style': '{',
+        },
+    },
+    'loggers': {
+        'root': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'base': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'sqlalchemy.engine': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    },
+}
+
+
 @pytest.fixture(scope='session', autouse=True)
 def logger():
-    logging.config.dictConfig({
-        'version': 1,
-        'disable_existing_loggers': True,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'default',
-                'level': 'INFO',
-                'stream': 'ext://sys.stdout',
-            },
-        },
-        'formatters': {
-            'default': {
-                'format': '{asctime} {levelname:8s} '
-                '{name:15s} {message}',
-                'datefmt': '%Y-%m-%d %H:%M:%S',  # noqa: WPS323
-            },
-        },
-        'loggers': {
-            'root': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-            },
-            'base': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-            },
-            'sqlalchemy.engine': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-            },
-        },
-    })
+    logging.config.dictConfig(base_logger_config)
     yield
 
 
