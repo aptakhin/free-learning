@@ -1,26 +1,41 @@
-install-backend:
+# Install
+install-backend::
 	(cd backend && poetry install --with dev --no-root)
 
-run:
-	docker compose up --build -d
+install-frontend::
+	(cd frontend && npm install)
 
-run-infra:
-	docker compose up --build -d age --env-file .env
+# Run local with Docker
+run-infra::
+	docker compose --env-file backend/.env up --build -d age
 
-run-backendw:
-	(cd backend && poetry run uvicorn app:app --reload)
+stop-infra::
+	docker compose stop age
 
-stop:
-	docker compose stop
+run::
+	docker compose --env-file backend/.env up --build -d
 
-ps:
+ps::
 	docker compose ps
 
-make test-backend:
+rerun-infra:: stop-infra run-infra
+
+# Run with watchable fs changes
+run-backendw::
+	(cd backend && poetry run uvicorn app:app --reload)
+
+run-frontendw::
+	(cd frontend && npm run dev)
+
+# Test
+make test-backend::
 	(cd backend && PYTHONPATH=. poetry run pytest)
 
-make test-backendw:
+make test-backendw::
 	(cd backend && PYTHONPATH=. poetry run ptw . --now)
 
-make lint-backend:
+make test-acc::
+	(cd acceptance && npm run test)
+
+make lint-backend::
 	(cd backend && PYTHONPATH=. poetry run flake8)

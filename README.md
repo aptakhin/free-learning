@@ -1,30 +1,51 @@
 # Hello
 
-## Backend
+All instructions are below. And feel free to look into `Makefile` for the full reference.
 
-Install
+## Run service
+
+Run all with Docker to look at service "as is":
 
 ```bash
-(cd backend && poetry install --with dev --no-root)
+make run
 ```
 
-Running:
+### Run for dev
+
+Install:
+
+```bash
+make install-backend
+make install-frontend
+```
+
+Run for dev with watchable things:
 
 ```bash
 make run-infra
 make run-backendw
 ```
 
-Run all in docker compose:
+In separate shell can run watched:
 
 ```bash
-make run
+make run-frontendw
 ```
 
-Run pytest-watch:
+### Testing
+
+Run watchable backend testing `pytest-watcher` (Separate shell):
 
 ```bash
 make test-backendw
 ```
 
-Linting (and can also use VSCode flake8 extension from environment setting):
+### Linting
+
+Linting for backend:
+
+```bash
+make lint-backend
+```
+
+Also can also use VSCode flake8 extension to see linting errors online.
