@@ -1,4 +1,6 @@
+import Link from "next/link";
 
 export default function MiroBlockView({ content }) {
-    return <div>Miro open <a link="{content}">{content}</a></div>
+    return <div>Miro open: <a href={ content } target='_blank'>{content}</a>
+    </div>
 }

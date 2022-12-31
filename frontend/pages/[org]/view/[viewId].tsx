@@ -5,16 +5,9 @@ import Layout from '../../../components/layout';
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 
-import dynamic from 'next/dynamic'
 import React from 'react';
 import BaseEntityView from './baseEntityView';
-import MiroEntityView from './miroEntityView';
 
-function DynamicHeader(path) {
-    return dynamic(() => import(path), {
-        loading: () => 'Loading...',
-    })
-}
 
 const fetcher = (param) => fetch(param.url, param.args).then(res => res.json())
 
@@ -25,7 +18,7 @@ const viewComponents = {
 export default function View() {
     const router = useRouter()
     const { org, viewId } = router.query
-    const entityId = viewId ? viewId : '0' // 844424930135849
+    const entityId = viewId ? viewId : '0' // 844424930138471
 
     const sendData = {
         start_properties: {'route': 'web/test'},
@@ -60,22 +53,11 @@ export default function View() {
             }
         } : null, fetcher);
 
-    console.log('PID', org, viewId, entityId, isLoading, data, xdata)
-
     if (isLoading || isLoading2) return <p>Loading</p>
 
-    // const name = 'first-post';
-    // const props = { count: 'value1', prop2: 'value2' };
-    // return initComponent(name, props);
     const rootItemData = data?.query_result?.[0]?.[2]
-    // if (rootItemData.label == "com.freelearning.base.entity") {
-
-    // }
     const rootItem = <BaseEntityView {...rootItemData} />
-    // const items2 = xdata?.query_result?.map((entry) =>
-    //     console.log(entry[0], 'x'))
-    // const items2 = xdata?.query_result?.map((entry) =>
-    //     initComponent(viewComponents[entry[0].label], entry[0]))
+
     const items2 = xdata?.query_result?.map((entry) => {
         const entity = entry[0]
         if (entity.label == "com.freelearning.base.entity") {

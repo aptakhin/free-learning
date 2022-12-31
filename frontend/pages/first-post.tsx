@@ -15,8 +15,6 @@ export default function FirstPost({ count }) {
     const router = useRouter()
     const { pid } = router.query
 
-    console.log('PID', pid)
-
     const sendData = {
         start_properties: {'route': 'web/test'},
         link_label: 'com.freelearning.base.NEXT_OF',
