@@ -18,6 +18,7 @@ def test_list():
 def test_properties_make():
     assert make_properties({'a': 1}) == '{a: 1}'
     assert make_properties({'a': 1, 'b': 2}) == '{a: 1, b: 2}'
+    assert make_properties({'a': 1, 'b': 2, 'c': {'d': 'f'}}) == "{a: 1, b: 2, c: {d: 'f'}}"
 
 
 def test_make_label():

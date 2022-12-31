@@ -5,6 +5,7 @@ import logging
 from base.config import FL_MODULE_BASE
 from base.db import get_db
 from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery
+from base.view import prepare_view_inplace
 from fastapi import APIRouter, Depends
 
 logger = logging.getLogger(__name__)
@@ -35,8 +36,17 @@ async def query_linked(
 ) -> EntityQueryResult:
     """Query entity."""
     query_result = await db.query_linked(query)
+
+    riched_result = []
+    for it in query_result:
+        riched_result.append([
+            prepare_view_inplace(it[0]),
+            it[1],
+            prepare_view_inplace(it[2]),
+        ])
+
     return EntityQueryResult(
-        query_result=query_result,
+        query_result=riched_result,
     )
 
 

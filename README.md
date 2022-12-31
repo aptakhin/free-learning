@@ -34,7 +34,7 @@ make run-frontendw
 
 ### Testing
 
-Run watchable backend testing `pytest-watcher` (Separate shell):
+Run watchable backend testing `pytest-watcher` (Separate shell & requires `make run-infra` earlier):
 
 ```bash
 make test-backendw

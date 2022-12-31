@@ -69,9 +69,8 @@ async def test_query__end_entity_id(client, database_conn_iter):
 
 @pytest.mark.asyncio
 async def test_query__start_entity_label_and_properties(
-    client,
     database_conn_iter,
-    debug_log,
+    # debug_log,
 ):
     num_link_to_root_entities = 1
     async for database_conn in database_conn_iter:

@@ -79,7 +79,23 @@ async def make_linked(db, *, num_link_to_root_entities: int):
     entity = Entity(
         typ=FL_MODULE_BASE_ENTITY,
         subject_id=str(uuid.uuid4()),
-        properties={},
+        properties={
+            'title': generate_lorem_ipsum(num_paragraphs=1, num_sentences=1),
+            'main': {
+                'parser': {
+                    'name': 'com.freelearning.base.markdown_parser',
+                    'version': 1,
+                },
+                'content': generate_lorem_ipsum(
+                    num_paragraphs=int(random.uniform(6, 10)),  # noqa: S311
+                    num_sentences=int(random.uniform(6, 10)),  # noqa: S311
+                ),
+                'blocks': [],
+            },
+            'addon': {
+                'blocks': [],
+            },
+        },
     )
     entity_row = await db.upsert_entity(entity)
 
@@ -98,15 +114,27 @@ async def make_linked(db, *, num_link_to_root_entities: int):
     )
     await db.upsert_link(link)
 
-    for _ in range(num_link_to_root_entities):
+    for counter in range(num_link_to_root_entities):
+        text = generate_lorem_ipsum(
+            num_paragraphs=int(random.uniform(1, 5)),  # noqa: S311
+            num_sentences=int(random.uniform(3, 10)),  # noqa: S311
+        )
+
+        if counter == 0:
+            text = 'https://miro.com/app/board/uXjVP6is-xM=/' + '\n\n' + text
+
         entity2 = Entity(
             typ=FL_MODULE_BASE_ENTITY,
             subject_id=str(uuid.uuid4()),
             properties={
-                'text': generate_lorem_ipsum(
-                    num_paragraphs=int(random.uniform(1, 5)),  # noqa: S311
-                    num_sentences=int(random.uniform(3, 10)),  # noqa: S311
-                ),
+                'main': {
+                    'content': text,
+                    'parser': {
+                        'name': 'com.freelearning.base.markdown_parser',
+                        'version': 1,
+                    },
+                    'blocks': [],
+                },
             },
         )
         entity2_row = await db.upsert_entity(entity2)
@@ -171,4 +199,6 @@ def logger():
 def debug_log(caplog):
     caplog.set_level(logging.DEBUG)
 
-    # yield
+    yield
+
+    caplog.set_level(logging.INFO)

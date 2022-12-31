@@ -8,6 +8,7 @@ import useSWR from 'swr'
 import dynamic from 'next/dynamic'
 import React from 'react';
 import BaseEntityView from './baseEntityView';
+import MiroEntityView from './miroEntityView';
 
 function DynamicHeader(path) {
     return dynamic(() => import(path), {
@@ -82,8 +83,8 @@ export default function View() {
         const entity = entry[0]
         if (entity.label == "com.freelearning.base.entity") {
             return <BaseEntityView {...entity} />
-        } else {
-
+        } else if (entity.label == "com.freelearning.miro.entity") {
+            return <MiroEntityView {...entity} />
         }
     })
     return (

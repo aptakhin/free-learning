@@ -129,15 +129,16 @@ class ApacheAgeDatabase(Database):
             RETURN [a, r, b]
         $$, $1) as (items agtype);"""
         param_obj_str = json.dumps(params)
-        logger.debug('Insert link query: %s', prep_query)
+        logger.debug('Get linked query: %s', prep_query)
         logger.debug('    params: %s', param_obj_str)
         async with self._engine.begin() as conn:
             await conn.execute(text(prep_query))
             statement_exec_result = await conn.execute(text("EXECUTE query_linked_procedure_{0}('{1}')".format(self._prep_statement_counter, param_obj_str)))
             query_result = [row.items for row in statement_exec_result]
-        logger.debug('Insert link query result: {0}'.format(json.dumps(query_result, indent=2)))
+        logger.debug('Linked query result: {0}'.format(json.dumps(query_result, indent=0)))
         self._prep_statement_counter += 1
         return query_result
+
 
 
 def loads(expr: str):
@@ -153,8 +154,16 @@ def dumps(_: ...):
 def make_properties(obj: Optional[dict[str, ...]]) -> str:
     if obj is None:
         return ''
-    properties_str = ', '.join('{0}: {1}'.format(k, repr(v)) for k, v in obj.items())  # noqa: WPS111
-    return '{{{0}}}'.format(properties_str)
+    elif isinstance(obj, (str, int)):
+        return repr(obj)
+    elif isinstance(obj, dict):
+        properties_str = ', '.join('{0}: {1}'.format(k, make_properties(v)) for k, v in obj.items())  # noqa: WPS111
+        return '{{{0}}}'.format(properties_str)
+    elif isinstance(obj, list):
+        properties_str = ', '.join('{0}'.format(make_properties(v)) for v in obj)  # noqa: WPS111
+        return '{{{0}}}'.format(properties_str)
+    else:
+        raise ValueError('Unsupported type `{0}` for `make_properties`!'.format(type(obj)))
 
 
 def make_label(obj: Optional[str]) -> str:
