@@ -45,6 +45,8 @@ async def query_linked(
             prepare_view_inplace(it[2]),
         ])
 
+    riched_result.sort(key=lambda it: it[0]['id'])
+
     return EntityQueryResult(
         query_result=riched_result,
     )

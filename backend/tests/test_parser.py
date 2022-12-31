@@ -11,7 +11,7 @@ def test_parser():
         typ=FL_MODULE_BASE_ENTITY,
         properties={
             'main': {
-                'content': 'hello',
+                'content': 'hello https://miro.com/app/board/uXjVP6is-xM=/ and buy',
                 'parser': {
                     'name': 'com.freelearning.base.markdown_parser',
                     'version': 1,
@@ -23,4 +23,9 @@ def test_parser():
 
     orig = copy.deepcopy(entity.dict())
     result = prepare_view_inplace(entity.dict())
-    assert len(result['properties']['main']['blocks']) == 1
+    assert len(result['properties']['main']['blocks']['items']) == 3
+    items = result['properties']['main']['blocks']['items']
+    assert items[0]['typ'] == 'com.freelearning.base.markdown_raw'
+    assert items[0]['content'] == 'hello '
+    assert items[1]['typ'] == 'com.freelearning.miro.block'
+    assert items[2]['typ'] == 'com.freelearning.base.markdown_raw'

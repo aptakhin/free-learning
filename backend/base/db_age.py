@@ -6,7 +6,7 @@ As standard python age had running problems.
 
 import json
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from base.db import Database
 from base.models import Entity, Link, EntityQuery
@@ -27,7 +27,10 @@ class ApacheAgeDatabase(Database):
 
     @classmethod
     async def create_engine(cls, dsn: str):
-        engine = create_async_engine(dsn)
+        engine = create_async_engine(
+            dsn,
+            connect_args={'timeout': 5},
+        )
 
         @event.listens_for(engine.sync_engine, 'connect')
         def register_types(dbapi_connection, *args):  # noqa: WPS430
@@ -107,7 +110,6 @@ class ApacheAgeDatabase(Database):
     ):
         cond = []
         params = {}
-
         if q.start_entity_id:
             cond.append('id(a) = $start_entity_id')
             params['start_entity_id'] = int(q.start_entity_id)
@@ -116,7 +118,6 @@ class ApacheAgeDatabase(Database):
                 cond.append('AND')
             cond.append('id(b) = $end_entity_id')
             params['end_entity_id'] = int(q.end_entity_id)
-
         where_cond = ''
         if cond:
             where_cond = 'WHERE ' + ' '.join(cond)
@@ -140,7 +141,6 @@ class ApacheAgeDatabase(Database):
         return query_result
 
 
-
 def loads(expr: str):
     expr = expr.replace('::vertex', '')
     expr = expr.replace('::edge', '')
@@ -151,7 +151,7 @@ def dumps(_: ...):
     pass
 
 
-def make_properties(obj: Optional[dict[str, ...]]) -> str:
+def make_properties(obj: Optional[dict[str, Any]]) -> str:
     if obj is None:
         return ''
     elif isinstance(obj, (str, int)):

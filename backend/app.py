@@ -8,6 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from workdomain.routes import router as workflow_router
 
 
+logger = logging.getLogger(__name__)
+
+
 base_logger_config = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -67,6 +70,7 @@ def create_app():
         return {'status': True}
 
     logging.config.dictConfig(base_logger_config)
+    logger.info('Started')
     return app
 
 

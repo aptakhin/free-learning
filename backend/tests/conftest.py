@@ -198,7 +198,5 @@ def logger():
 @pytest.fixture(scope='function')
 def debug_log(caplog):
     caplog.set_level(logging.DEBUG)
-
     yield
-
     caplog.set_level(logging.INFO)

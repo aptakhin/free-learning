@@ -67,14 +67,11 @@ export default function View() {
     // const name = 'first-post';
     // const props = { count: 'value1', prop2: 'value2' };
     // return initComponent(name, props);
-    const items = data?.query_result?.[0]?.map((entry) => {
-        const entity = entry
-        if (entity.label == "com.freelearning.base.entity") {
-            return <BaseEntityView {...entity} />
-        } else {
+    const rootItemData = data?.query_result?.[0]?.[2]
+    // if (rootItemData.label == "com.freelearning.base.entity") {
 
-        }
-    });
+    // }
+    const rootItem = <BaseEntityView {...rootItemData} />
     // const items2 = xdata?.query_result?.map((entry) =>
     //     console.log(entry[0], 'x'))
     // const items2 = xdata?.query_result?.map((entry) =>
@@ -94,7 +91,7 @@ export default function View() {
             <title>First Post</title>
             </Head>
 
-            <div>{items}</div>
+            <div>{rootItem}</div>
             <div>{items2}</div>
 
         </Layout>

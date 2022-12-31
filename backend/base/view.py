@@ -15,6 +15,9 @@ def prepare_view_inplace(entity: dict[str, Any]) -> dict:
     if parser_block['name'] == 'com.freelearning.base.markdown_parser':
         parser = MarkdownParser()
         blocks = parser.parse(main_block['content'], main_block.get('context', {}))
-        entity['properties']['main']['blocks'] = blocks.json()
+
+        html_blocks = parser.export_html(blocks)
+
+        entity['properties']['main']['blocks'] = html_blocks.json()
 
     return entity
