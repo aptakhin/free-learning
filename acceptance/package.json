@@ -1,16 +1,16 @@
 {
   "name": "acceptance",
   "version": "1.0.0",
-  "description": "Acceptance tests",
-  "main": "index.ts",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "SELENIUM_BROWSER=chrome mocha --timeout 10000 test.spec.js"
+    "test": "npx playwright test --config=web_tests/config.ts && npx playwright test --config=api_tests/config.ts",
+    "testw": "npm exec nodemon --watch ./ --exec \"npx playwright test --config=tests/config.ts\""
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "mocha": "^10.2.0",
-    "selenium-webdriver": "^4.7.0",
-    "typescript": "4.9.4"
+  "devDependencies": {
+    "@playwright/test": "^1.29.1"
   }
 }

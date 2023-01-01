@@ -5,7 +5,7 @@ import Layout from '../../../components/layout';
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import BaseEntityView from './baseEntityView';
 import TextEditor from '../../../components/texteditor';
 
@@ -14,6 +14,10 @@ const fetcher = (param) => fetch(param.url, param.args).then(res => res.json())
 
 const viewComponents = {
     'com.freelearning.base.entity': './baseEntityView',
+}
+
+function Loading() {
+    return <h2>🌀 Loading...</h2>;
 }
 
 export default function View() {
@@ -54,10 +58,11 @@ export default function View() {
             }
         } : null, fetcher);
 
-    if (isLoading || isLoading2) return <p>Loading</p>
+    const loadingState = isLoading || isLoading2
+    // if (loadingState) return <p>Loading</p>
 
     const rootItemData = data?.query_result?.[0]?.[2]
-    const rootItem = <><BaseEntityView {...rootItemData} /> <TextEditor onTextSubmit={(content) => onTextSubmit(content, org, rootItemData.id)}/></>
+    const rootItem = <><BaseEntityView {...rootItemData} /> <TextEditor forRoot={true} onTextSubmit={(content) => onTextSubmit(content, org, rootItemData.id)}/></>
 
     async function onTextSubmit(content, org, replyTo) {
         console.log('FF', content, org, replyTo)
@@ -121,15 +126,13 @@ export default function View() {
             <title>First Post</title>
             </Head>
 
-            {/* <h1 class="text-2xl font-bold underline">
-      Hello world!
-            </h1> */}
-
-
+            <div id='loadingState'>{loadingState}</div>
+            <Suspense fallback={<Loading />}>
 
             <div>{rootItem}</div>
             <div>{items2}</div>
 
+            </Suspense>
         </Layout>
     );
 }

@@ -9,5 +9,5 @@ export default function BaseEntityView({ label, id, properties }) {
             return <MiroBlockView {...block} />
         }
     });
-    return <div>#{id}: {renderedBlocks}</div>
+    return <p class='pt-4'>#{id}: {renderedBlocks}</p>
 }

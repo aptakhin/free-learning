@@ -37,5 +37,8 @@ make test-backendw::
 make test-acc::
 	(cd acceptance && npm run test)
 
+make test-accw::
+	(cd acceptance && npm run testw)
+
 make lint-backend::
 	(cd backend && PYTHONPATH=. poetry run flake8)
