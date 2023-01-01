@@ -160,7 +160,7 @@ def make_properties(obj: Optional[dict[str, Any]]) -> str:
         properties_str = ', '.join('{0}: {1}'.format(k, make_properties(v)) for k, v in obj.items())  # noqa: WPS111
         return '{{{0}}}'.format(properties_str)
     elif isinstance(obj, list):
-        properties_str = ', '.join('{0}'.format(make_properties(v)) for v in obj)  # noqa: WPS111
+        properties_str = ', '.join(make_properties(v) for v in obj)  # noqa: WPS111
         return '{{{0}}}'.format(properties_str)
     else:
         raise ValueError('Unsupported type `{0}` for `make_properties`!'.format(type(obj)))

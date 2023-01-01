@@ -59,7 +59,7 @@ class MarkdownParser(object):
 
     def __init__(self) -> None:
         self._extract_rules = [
-            ExtractRule('(https://miro.com/app/board/.+)', typ='com.freelearning.miro.block')
+            ExtractRule('(https://miro.com/app/board/\S+)', typ='com.freelearning.miro.block')
         ]
 
     def parse(self, text: str, context: dict) -> ParserResults:

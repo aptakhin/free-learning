@@ -25,7 +25,7 @@ def test_parser():
     result = prepare_view_inplace(entity.dict())
     assert len(result['properties']['main']['blocks']['items']) == 3
     items = result['properties']['main']['blocks']['items']
-    assert items[0]['typ'] == 'com.freelearning.base.markdown_raw'
-    assert items[0]['content'] == 'hello '
+    assert items[0]['typ'] == 'com.freelearning.base.markdown_html'
+    assert items[0]['content'] == '<p>hello</p>\n'
     assert items[1]['typ'] == 'com.freelearning.miro.block'
-    assert items[2]['typ'] == 'com.freelearning.base.markdown_raw'
+    assert items[2]['typ'] == 'com.freelearning.base.markdown_html'
