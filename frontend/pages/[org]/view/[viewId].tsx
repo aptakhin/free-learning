@@ -7,6 +7,7 @@ import useSWR from 'swr'
 
 import React from 'react';
 import BaseEntityView from './baseEntityView';
+import TextEditor from '../../../components/texteditor';
 
 
 const fetcher = (param) => fetch(param.url, param.args).then(res => res.json())
@@ -56,12 +57,59 @@ export default function View() {
     if (isLoading || isLoading2) return <p>Loading</p>
 
     const rootItemData = data?.query_result?.[0]?.[2]
-    const rootItem = <BaseEntityView {...rootItemData} />
+    const rootItem = <><BaseEntityView {...rootItemData} /> <TextEditor onTextSubmit={(content) => onTextSubmit(content, org, rootItemData.id)}/></>
+
+    async function onTextSubmit(content, org, replyTo) {
+        console.log('FF', content, org, replyTo)
+
+        const result = await fetch('http://localhost:8000/api/com.freelearning.base/v1/upsert-entity/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'typ': 'com.freelearning.base.entity',
+                'subject_id': '',
+                'properties': {
+                    'title': '',
+                    'main': {
+                        'parser': {
+                            'name': 'com.freelearning.base.markdown_parser',
+                            'version': 1,
+                        },
+                        'content': content,
+                        'blocks': [],
+                    },
+                    'addon': {
+                        'blocks': [],
+                    },
+                }
+            }),
+        })
+
+        const responseJson = await result.json()
+        console.log('Fr', result, responseJson)
+        // console.log(response);
+
+        await fetch('http://localhost:8000/api/com.freelearning.base/v1/upsert-link/', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'typ': 'com.freelearning.base.CHILD_OF',
+                'subject_id': '',
+                'start_id': responseJson['id'],
+                'end_id': replyTo,
+                'text': '',
+            }),
+        })
+    }
 
     const items2 = xdata?.query_result?.map((entry) => {
         const entity = entry[0]
         if (entity.label == "com.freelearning.base.entity") {
-            return <BaseEntityView {...entity} />
+            return <><BaseEntityView {...entity} /> <TextEditor onTextSubmit={(content) => onTextSubmit(content, org, entity.id)}/></>
         } else if (entity.label == "com.freelearning.miro.entity") {
             return <MiroEntityView {...entity} />
         }
@@ -72,6 +120,12 @@ export default function View() {
         <Head>
             <title>First Post</title>
             </Head>
+
+            {/* <h1 class="text-2xl font-bold underline">
+      Hello world!
+            </h1> */}
+
+
 
             <div>{rootItem}</div>
             <div>{items2}</div>
