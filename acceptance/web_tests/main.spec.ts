@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('api', async ({ page }) => {
-  await page.goto('');
+  await page.goto('http://localhost:3000/xxx/view/844424930140110');
 
   // Wait for loading
   await expect(page).toHaveTitle(/First Post/);

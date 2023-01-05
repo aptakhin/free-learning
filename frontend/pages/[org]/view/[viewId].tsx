@@ -32,7 +32,7 @@ export default function View() {
     }
     const { data, error, isLoading } = useSWR(
         router.isReady? {
-            url: 'http://localhost:8000/api/com.freelearning.base/v1/query-linked/',
+            url: 'http://localhost:8000/xxx/api/com.freelearning.base/v1/query-linked/',
             args: {
                 method: 'POST',
                 body: JSON.stringify(sendData),
@@ -48,7 +48,7 @@ export default function View() {
     }
     const { data: xdata, error: xerror, isLoading: isLoading2 } = useSWR(
         router.isReady? {
-            url: 'http://localhost:8000/api/com.freelearning.base/v1/query-linked/',
+            url: 'http://localhost:8000/xxx/api/com.freelearning.base/v1/query-linked/',
             args: {
                 method: 'POST',
                 body: JSON.stringify(sendData2),
@@ -62,12 +62,12 @@ export default function View() {
     // if (loadingState) return <p>Loading</p>
 
     const rootItemData = data?.query_result?.[0]?.[2]
-    const rootItem = <><BaseEntityView {...rootItemData} /> <TextEditor forRoot={true} onTextSubmit={(content) => onTextSubmit(content, org, rootItemData.id)}/></>
+    const rootItem = <><BaseEntityView onAddTag={() => false } onRemoveTag={() => false } {...rootItemData} /> <TextEditor forRoot={true} onTextSubmit={(content) => onTextSubmit(content, org, rootItemData.id)}/></>
 
     async function onTextSubmit(content, org, replyTo) {
         console.log('FF', content, org, replyTo)
 
-        const result = await fetch('http://localhost:8000/api/com.freelearning.base/v1/upsert-entity/', {
+        const result = await fetch('http://localhost:8000/xxx/api/com.freelearning.base/v1/upsert-entity/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ export default function View() {
         console.log('Fr', result, responseJson)
         // console.log(response);
 
-        await fetch('http://localhost:8000/api/com.freelearning.base/v1/upsert-link/', {
+        await fetch('http://localhost:8000/xxx/api/com.freelearning.base/v1/upsert-link/', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',

@@ -10,8 +10,23 @@ from fastapi import APIRouter, Depends
 
 logger = logging.getLogger(__name__)
 
+
+auth_router = APIRouter(
+    prefix='/api/%s/v1' % (FL_MODULE_BASE,),
+    tags=['base'],
+    responses={404: {'description': 'Not found'}},
+)
+
+@auth_router.post('/auth')
+async def auth(
+    email: str,
+    db=Depends(get_db),  # noqa: B008, WPS404
+):
+    print('HH')
+
+
 router = APIRouter(
-    prefix=f'/api/{FL_MODULE_BASE}/v1',
+    prefix='/{org_slug}/api/%s/v1' % (FL_MODULE_BASE,),
     tags=['base'],
     responses={404: {'description': 'Not found'}},
 )
@@ -55,9 +70,11 @@ async def query_linked(
 @router.post('/upsert-link', response_model=LinkUpsertResult)
 async def upsert_link(
     link: Link,
+    org_slug: str,
     db=Depends(get_db),  # noqa: B008, WPS404
 ) -> LinkUpsertResult:
     """Upserts link."""
+    print('SS', org_slug)
     result_row = await db.upsert_link(link)
     return LinkUpsertResult(
         id=result_row['id'],

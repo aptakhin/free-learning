@@ -2,7 +2,7 @@
 
 import logging.config  # noqa: WPS301
 
-from base.routes import router as base_router
+from base.routes import router as base_router, auth_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from workdomain.routes import router as workflow_router
@@ -48,6 +48,7 @@ base_logger_config = {
 
 def create_app():
     app = FastAPI()
+    app.include_router(auth_router)
     app.include_router(base_router)
     app.include_router(workflow_router)
 

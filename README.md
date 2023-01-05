@@ -40,6 +40,16 @@ Run watchable backend testing `pytest-watcher` (Separate shell & requires `make 
 make test-backendw
 ```
 
+### DB migrations
+
+Alembic powered on SQL-part of `Apache Age`.
+
+```bash
+cd backend
+poetry run alembic revision --autogenerate -m '...'
+poetry run alembic upgrade head
+```
+
 ### Linting
 
 Linting for backend:
