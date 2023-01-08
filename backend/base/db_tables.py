@@ -43,4 +43,5 @@ account_a14n_signature = Table(
     Column('account_a14n_provider_type', String, nullable=False),
     Column('value', String, nullable=False),
     Column('device', JSONB, nullable=True),
+    UniqueConstraint('account_a14n_provider_type', 'value', name='account_a14n_signature_provider_type_value_idx'),
 )

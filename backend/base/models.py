@@ -30,8 +30,6 @@ class Entity(BaseElement):
                 'subject_id': '1234',
             },
         }
-        json_encoders = {
-        }
 
 
 class EntityUpsertResult(BaseModel):
@@ -88,3 +86,9 @@ class SendEmailQuery(BaseModel):
 
 class Account(BaseModel):
     account_id: str
+
+
+class AccountA14N(Account):
+    account_id: str
+    account_a14n_provider_id: str
+    account_a14n_signature_id: str

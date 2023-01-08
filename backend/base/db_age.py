@@ -7,11 +7,11 @@ As standard python age had running problems.
 import json
 import logging
 from typing import Any, Optional
-from base.models import Account
+from base.models import Account, AccountA14N
 
 from base.db_tables import account, account_a14n_provider, account_a14n_signature
 from base.models import Entity, Link, EntityQuery
-from sqlalchemy import event, join, select
+from sqlalchemy import event, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.sql import text
@@ -143,30 +143,18 @@ class Database(object):
         self._prep_statement_counter += 1
         return query_result
 
-    async def query_account_by_a14n_signature_type_and_value(self, *, signature_type: str, signature_value: str) -> Optional[Account]:
+    async def query_account_by_a14n_signature_type_and_value(self, *, signature_type: str, signature_value: str) -> AccountA14N:
         async with self._engine.begin() as conn:
-            # account_a14n_join = join(
-            #     account,
-            #     account_a14n_provider,
-            #     account.c.id == account_a14n_provider.c.account_id,
-            # )
-            # account_a14n_join2 = join(
-            #     account_a14n_provider,
-            #     account_a14n_signature,
-            #     account_a14n_signature.c.account_a14n_provider_id == account_a14n_provider.c.id,
-            # )
-            # query = (
-            #     select(account.c.id)
-            #     .select_from(account_a14n_join, account_a14n_join2)
-            #     .where(
-            #         account_a14n_signature.c.account_a14n_provider_type == signature_type,
-            #         account_a14n_signature.c.value == signature_value,
-            #     )
-            # )
             query = (
-                select([account.c.id.label('account_id')])
+                select([
+                    account.c.id.label('account_id'),
+                    account_a14n_provider.c.id.label('account_a14n_provider_id'),
+                    account_a14n_signature.c.id.label('account_a14n_signature_id'),
+                ])
                 .select_from(
-                    account.join(account_a14n_provider).join(account_a14n_signature),
+                    account
+                    .join(account_a14n_provider)
+                    .join(account_a14n_signature),
                 )
                 .where(
                     account_a14n_signature.c.account_a14n_provider_type == signature_type,
@@ -175,10 +163,12 @@ class Database(object):
             )
             query_response = await conn.execute(query)
             query_result = query_response.one_or_none()
-            print('MY', query_result, type(query_result))
-            return Account(
+            print('MY', query_result._mapping if query_result else '', type(query_result))
+            return AccountA14N(
                 account_id=query_result['account_id'],
-            )
+                account_a14n_provider_id=query_result['account_a14n_provider_id'],
+                account_a14n_signature_id=query_result['account_a14n_signature_id'],
+            ) if query_result else None
 
     async def add_account_new_a14n_signature(self, *, account_id: Optional[str], signature_type: str, signature_value: str) -> Optional[Account]:
         async with self._engine.begin() as conn:
@@ -223,17 +213,15 @@ class Database(object):
         provider_value: str,
     ) -> Optional[dict]:
         async with self._engine.begin() as conn:
-            accounts_auth_join = join(
-                account,
-                account_a14n_provider,
-                account.c.id == account_a14n_provider.c.account_id,
-            )
             query = (
                 select(
                     account.c.id.label('account_id'),
                     account_a14n_provider.c.id.label('account_provider_id'),
                 )
-                .select_from(accounts_auth_join)
+                .select_from(
+                    account
+                    .join(account_a14n_provider),
+                )
                 .where(
                     account_a14n_provider.c.type == provider_type,
                     account_a14n_provider.c.value == provider_value,
@@ -241,30 +229,52 @@ class Database(object):
             )
             query_response = await conn.execute(query)
             query_result = query_response.one_or_none()
-            print(query_result, query_result.__dict__ if query_result else '')
             return dict(
                 account_id=query_result['account_id'],
-                # account_provider_id=query_result['account_provider_id'],
             ) if query_result else None
 
-    async def confirm_a14n_with_device(self, account_a14n_id: str, device: dict[str, Any]) -> Optional[Account]:
+    async def add_new_account(self) -> Account:
         async with self._engine.begin() as conn:
-            accounts_auth_join = join(
-                accounts,
-                account_a14ns,
-                accounts.c.id == account_a14ns.c.account_id,
+            insert_account_query = (
+                insert(account)
+                .values()
+                .returning(
+                    account.c.id,
+                )
             )
-        query = (
-            select()
-            .select_from(accounts_auth_join)
-            .where(account_a14ns.c.type == 'email', account_a14ns.c.key == activation_phrase)
-        )
-        query_result = await conn.execute(query)
-        query_result.one_or_none()
-        print(query_result, query_result.__dict__)
-        return Account(
-            account_id=query_result['id'],
-        )
+            insert_account_response = await conn.execute(insert_account_query)
+            insert_account_result = insert_account_response.one()
+            return Account(
+                account_id=insert_account_result['account_id'],
+            )
+
+    async def move_a14n_provider_to_account(
+        self,
+        *,
+        account_a14n_provider_id: str,
+        account_id: str,
+    ) -> None:
+        async with self._engine.begin() as conn:
+            update_provider_query = (
+                account_a14n_provider.update()
+                .where(account_a14n_provider.c.id == account_a14n_provider_id)
+                .values(
+                    account_id=account_id,
+                )
+            )
+            await conn.execute(update_provider_query)
+
+
+    async def confirm_a14n_with_device(self, account_a14n_signature_id: str, device: dict[str, Any]) -> None:
+        async with self._engine.begin() as conn:
+            update_provider_query = (
+                account_a14n_signature.update()
+                .where(account_a14n_signature.c.id == account_a14n_signature_id)
+                .values(
+                    device=device,
+                )
+            )
+            await conn.execute(update_provider_query)
 
 
 def loads(expr: str):
@@ -273,8 +283,8 @@ def loads(expr: str):
     return json.loads(expr)
 
 
-def dumps(_: ...):
-    pass
+def dumps(_: Any):
+    raise ValueError('Not implemented!')
 
 
 def make_properties(obj: Optional[dict[str, Any]]) -> str:

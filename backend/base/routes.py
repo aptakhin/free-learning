@@ -2,14 +2,15 @@
 
 import logging
 from typing import Optional
+from http import HTTPStatus
 
 from base.config import FL_MODULE_BASE, Settings, get_settings, FL_ANONYMOUS_ACCOUNT_ID
 from base.db import get_db, Database
 from base.email import get_emailer, Emailer
-from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery, AccountAuthToken, SendEmailQuery, Account
+from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery, AccountAuthToken, SendEmailQuery, Account, AccountA14N
 from base.view import prepare_view_inplace
 import jwt
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,6 @@ async def send_email(
     account_id = account.account_id if account else FL_ANONYMOUS_ACCOUNT_ID
 
     activation_phrase = 'magic-words'
-
     await db.add_account_new_a14n_signature(
         account_id=account_id,
         signature_type='email',
@@ -57,19 +57,44 @@ async def send_email(
 @auth_router.get('/auth/confirm-email-with-{activation_phrase:path}')
 async def confirm_email(
     activation_phrase: str,
+    request: Request,
     db: Database = Depends(get_db),  # noqa: B008, WPS404
     settings: Settings = Depends(get_settings),  # noqa: B008, WPS404
 ):
-    account: Optional[dict] = await db.query_account_by_a14n_signature_type_and_value(signature_type='email', signature_value=activation_phrase)
+    account_a14n: Optional[AccountA14N] = await db.query_account_by_a14n_signature_type_and_value(signature_type='email', signature_value=activation_phrase)
+
+    if not account_a14n:
+        return JSONResponse(content={'status': 'ok'}, status_code=HTTPStatus.UNAUTHORIZED)
+
+    if account_a14n.account_id == FL_ANONYMOUS_ACCOUNT_ID:
+        # Register new account by confirmed provider
+        async with db._engine.begin() as _:
+            account = await db.add_new_account()
+            await db.move_a14n_provider_to_account(
+                account_a14n_provider_id=account_a14n.account_a14n_provider_id,
+                account_id=account.account_id,
+            )
+            account_a14n.account_id = account.account_id
 
     account_auth_token = AccountAuthToken(
-        account_id=account.account_id,
+        account_id=account_a14n.account_id,
     )
 
     encoded_auth = jwt.encode(
         payload=account_auth_token.dict(),
         key=settings.jwt_a14n_token,
         algorithm='HS256',
+    )
+
+    request_headers = request.headers
+    device = {
+        header: request_headers[header]
+        for header in ('user-agent', 'sec-ch-ua', 'sec-ch-ua-platform', 'sec-ch-ua-mobile')
+        if header in request_headers
+    }
+    await db.confirm_a14n_with_device(
+        account_a14n_signature_id=account_a14n.account_a14n_signature_id,
+        device=device,
     )
     # >>> jwt.decode(encoded, "secret", algorithms=["HS256"])
     # {'some': 'payload'}

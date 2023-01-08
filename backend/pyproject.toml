@@ -27,6 +27,7 @@ pytest-watcher = "^0.2.6"
 pytest-asyncio = "^0.20.3"
 factory-boy = "^3.2.1"
 aiosmtpd = "^1.4.3"
+mypy = "^0.991"
 
 [build-system]
 requires = ["poetry-core"]
