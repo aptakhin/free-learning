@@ -1,31 +1,87 @@
 """."""
 
+import logging
 import logging.config  # noqa: WPS301
 import random
+from unittest.mock import AsyncMock
 import uuid
+
+from httpx import Request, Response
 
 from app import create_app
 from base.config import (
+    get_settings,
     FL_MODULE_BASE, FL_MODULE_BASE_ENTITY,
     Settings, FL_MODULE_BASE_LINK_CHILD_OF,
     FL_MODULE_BASE_WEB_ROUTE, FL_MODULE_BASE_LINK_NEXT_OF,
 )
 from base.db import get_db
+from base.email import get_emailer
 from base.models import Entity, Link
 from fastapi.testclient import TestClient
 import pytest
 
 
+logger = logging.getLogger(__name__)
+
+
 @pytest.fixture
 def test_app():
     app = create_app()
+
     yield app
+
+    if get_db in app.dependency_overrides:
+        del app.dependency_overrides[get_db]
+
+    if get_emailer in app.dependency_overrides:
+        del app.dependency_overrides[get_emailer]
+
+
+def log_request(request: Request):
+    print(f'Send request: {request.method} {request.url}')
+    print(f'...[headers]: {request.headers}')
+    print(f'...   [body]: {request.content}')
+
+
+def log_response(response: Response):
+    print(f'Got response: {response} {response.url}')
 
 
 @pytest.fixture
 def client(test_app):
-    cl = TestClient(test_app)
-    yield cl
+    test_client = TestClient(test_app)
+
+    test_client.event_hooks['request'] = [log_request]
+    test_client.event_hooks['response'] = [log_response]
+
+    yield test_client
+
+
+def _override_dependency(*, app, override, obj):
+    mock_obj = obj
+    async def get_mock_obj():
+        return mock_obj
+    app.dependency_overrides[override] = get_mock_obj
+    return mock_obj
+
+
+@pytest.fixture
+def mock_db(test_app):
+    return _override_dependency(
+        override=get_db,
+        app=test_app,
+        obj=AsyncMock(),
+    )
+
+
+@pytest.fixture
+def mock_emailer(test_app):
+    return _override_dependency(
+        override=get_emailer,
+        app=test_app,
+        obj=AsyncMock(),
+    )
 
 
 @pytest.fixture

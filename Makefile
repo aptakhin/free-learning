@@ -32,7 +32,7 @@ make test-backend::
 	(cd backend && PYTHONPATH=. poetry run pytest)
 
 make test-backendw::
-	(cd backend && PYTHONPATH=. poetry run ptw . --now)
+	(cd backend/tests && PYTHONPATH=.. poetry run ptw .. --now)
 
 make test-acc::
 	(cd acceptance && npm run test)

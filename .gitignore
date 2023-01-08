@@ -9,3 +9,5 @@ node_modules/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+backend/.env
+backend/.env

@@ -1,28 +1,82 @@
 """."""
 
 import logging
+from typing import Optional
 
-from base.config import FL_MODULE_BASE
-from base.db import get_db
-from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery
+from base.config import FL_MODULE_BASE, Settings, get_settings, FL_ANONYMOUS_ACCOUNT_ID
+from base.db import get_db, Database
+from base.email import get_emailer, Emailer
+from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery, AccountAuthToken, SendEmailQuery, Account
 from base.view import prepare_view_inplace
+import jwt
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
 
 auth_router = APIRouter(
-    prefix='/api/%s/v1' % (FL_MODULE_BASE,),
+    prefix='/api/v1',
     tags=['base'],
     responses={404: {'description': 'Not found'}},
 )
 
-@auth_router.post('/auth')
-async def auth(
-    email: str,
-    db=Depends(get_db),  # noqa: B008, WPS404
+
+@auth_router.post('/auth/send-email')
+async def send_email(
+    send_email_query: SendEmailQuery,
+    emailer: Emailer = Depends(get_emailer),  # noqa: B008, WPS404
+    db: Database = Depends(get_db),  # noqa: B008, WPS404
 ):
-    print('HH')
+    account: Optional[Account] = await db.query_account_by_a14n_provider_type_and_value(
+        provider_type='email',
+        provider_value=send_email_query.email,
+    )
+
+    account_id = account.account_id if account else FL_ANONYMOUS_ACCOUNT_ID
+
+    activation_phrase = 'magic-words'
+
+    await db.add_account_new_a14n_signature(
+        account_id=account_id,
+        signature_type='email',
+        signature_value=activation_phrase,
+    )
+
+    link = 'http://localhost:8000/api/v1/auth/confirm-email-with-{}'.format(activation_phrase)
+
+    await emailer.send_email(
+        to=send_email_query.email,
+        subject='Freelearning activation link',
+        content=[{'type': 'text/plain', 'value': 'Enter here: {}'.format(link)}],
+    )
+
+    return {'status': 'ok'}
+
+
+@auth_router.get('/auth/confirm-email-with-{activation_phrase:path}')
+async def confirm_email(
+    activation_phrase: str,
+    db: Database = Depends(get_db),  # noqa: B008, WPS404
+    settings: Settings = Depends(get_settings),  # noqa: B008, WPS404
+):
+    account: Optional[dict] = await db.query_account_by_a14n_signature_type_and_value(signature_type='email', signature_value=activation_phrase)
+
+    account_auth_token = AccountAuthToken(
+        account_id=account.account_id,
+    )
+
+    encoded_auth = jwt.encode(
+        payload=account_auth_token.dict(),
+        key=settings.jwt_a14n_token,
+        algorithm='HS256',
+    )
+    # >>> jwt.decode(encoded, "secret", algorithms=["HS256"])
+    # {'some': 'payload'}
+
+    response = JSONResponse(content={'status': 'ok'})
+    response.set_cookie(key='auth', value=encoded_auth)
+    return response
 
 
 router = APIRouter(
@@ -74,7 +128,6 @@ async def upsert_link(
     db=Depends(get_db),  # noqa: B008, WPS404
 ) -> LinkUpsertResult:
     """Upserts link."""
-    print('SS', org_slug)
     result_row = await db.upsert_link(link)
     return LinkUpsertResult(
         id=result_row['id'],

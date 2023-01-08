@@ -76,3 +76,15 @@ class EntityQueryResult(BaseModel):
     """."""
 
     query_result: list
+
+
+class AccountAuthToken(BaseModel):
+    account_id: str
+
+
+class SendEmailQuery(BaseModel):
+    email: str
+
+
+class Account(BaseModel):
+    account_id: str

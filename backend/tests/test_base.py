@@ -8,6 +8,8 @@ from conftest import make_linked
 import pytest
 
 
+@pytest.mark.move2acceptance
+@pytest.mark.skip
 def test_entity__upsert__insert(client, unsaved_entity: Entity):
     response = client.post(
         f'/api/{FL_MODULE_BASE}/v1/upsert-entity',
@@ -19,6 +21,8 @@ def test_entity__upsert__insert(client, unsaved_entity: Entity):
     assert js['id'], js
 
 
+@pytest.mark.move2acceptance
+@pytest.mark.skip
 def test_link_upsert__insert(client, saved_entity1: dict, saved_entity2: dict):
     link = Link(
         typ=FL_MODULE_BASE_LINK_CHILD_OF,
@@ -38,6 +42,8 @@ def test_link_upsert__insert(client, saved_entity1: dict, saved_entity2: dict):
 
 
 @pytest.mark.asyncio
+@pytest.mark.move2acceptance
+@pytest.mark.skip
 async def test_query__end_entity_id(client, database_conn_iter):
     num_link_to_root_entities = 10
 
@@ -68,6 +74,8 @@ async def test_query__end_entity_id(client, database_conn_iter):
 
 
 @pytest.mark.asyncio
+@pytest.mark.move2acceptance
+@pytest.mark.skip
 async def test_query__start_entity_label_and_properties(
     database_conn_iter,
     # debug_log,

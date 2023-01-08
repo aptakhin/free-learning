@@ -3,8 +3,11 @@
 import logging.config  # noqa: WPS301
 
 from base.routes import router as base_router, auth_router
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from workdomain.routes import router as workflow_router
 
 
@@ -13,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 base_logger_config = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'default',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'stream': 'ext://sys.stdout',
         },
     },
@@ -56,6 +59,15 @@ def create_app():
         'http://localhost:3000',
         'http://localhost:8000',
     ]
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        json_result = jsonable_encoder({'detail': exc.errors(), 'body': exc.body})
+        logger.info('Request validation error: %s', json_result)
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content=json_result,
+        )
 
     app.add_middleware(
         CORSMiddleware,
