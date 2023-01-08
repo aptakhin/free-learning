@@ -1026,7 +1026,7 @@ typing_extensions = ">=4.0,<5.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "12ee00e50b992537e86ac81920029b80c508581500af14d4d64b406c40d1a416"
+content-hash = "ac62b07b386b3ea31eef2415cc0b4bde7a02dd41052265730d91e33daf3deb8a"
 
 [metadata.files]
 aiosmtpd = [

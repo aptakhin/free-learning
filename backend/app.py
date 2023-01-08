@@ -2,6 +2,9 @@
 
 import logging.config  # noqa: WPS301
 
+from colorama import Fore
+from log import init_logger  # noqa: WPS301
+
 from base.routes import router as base_router, auth_router
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -14,42 +17,8 @@ from workdomain.routes import router as workflow_router
 logger = logging.getLogger(__name__)
 
 
-base_logger_config = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
-            'level': 'DEBUG',
-            'stream': 'ext://sys.stdout',
-        },
-    },
-    'formatters': {
-        'default': {
-            'format': '{asctime} {levelname:8s} {name:15s} {message}',
-            'datefmt': '%Y-%m-%d %H:%M:%S',  # noqa: WPS323
-            'style': '{',
-        },
-    },
-    'loggers': {
-        'root': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'base': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'sqlalchemy.engine': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-        },
-    },
-}
-
-
 def create_app():
+    init_logger()
     app = FastAPI()
     app.include_router(auth_router)
     app.include_router(base_router)
@@ -82,8 +51,7 @@ def create_app():
         """."""
         return {'status': True}
 
-    logging.config.dictConfig(base_logger_config)
-    logger.info('Started')
+    logger.info('Started {0}{1}{2}', Fore.LIGHTRED_EX, 'instance', Fore.RESET)
     return app
 
 

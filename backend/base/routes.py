@@ -64,7 +64,8 @@ async def confirm_email(
     account_a14n: Optional[AccountA14N] = await db.query_account_by_a14n_signature_type_and_value(signature_type='email', signature_value=activation_phrase)
 
     if not account_a14n:
-        return JSONResponse(content={'status': 'ok'}, status_code=HTTPStatus.UNAUTHORIZED)
+        raise ValueError('ss')
+        return JSONResponse(content={'status': 'not-ok'}, status_code=HTTPStatus.UNAUTHORIZED)
 
     if account_a14n.account_id == FL_ANONYMOUS_ACCOUNT_ID:
         # Register new account by confirmed provider

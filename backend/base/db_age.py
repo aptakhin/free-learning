@@ -7,8 +7,8 @@ As standard python age had running problems.
 import json
 import logging
 from typing import Any, Optional
-from base.models import Account, AccountA14N
 
+from base.models import Account, AccountA14N
 from base.db_tables import account, account_a14n_provider, account_a14n_signature
 from base.models import Entity, Link, EntityQuery
 from sqlalchemy import event, select
@@ -84,8 +84,6 @@ class Database(object):
         param_obj = {
             'link_start_id': link.start_id,
             'link_end_id': link.end_id,
-            # 'label': label,
-            # 'properties': properties,
         }
         param_obj_str = json.dumps(param_obj)
         logger.debug('Upsert link query result: {0}'.format(param_obj_str))
@@ -163,7 +161,7 @@ class Database(object):
             )
             query_response = await conn.execute(query)
             query_result = query_response.one_or_none()
-            print('MY', query_result._mapping if query_result else '', type(query_result))
+
             return AccountA14N(
                 account_id=query_result['account_id'],
                 account_a14n_provider_id=query_result['account_a14n_provider_id'],

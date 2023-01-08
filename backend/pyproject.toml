@@ -28,6 +28,7 @@ pytest-asyncio = "^0.20.3"
 factory-boy = "^3.2.1"
 aiosmtpd = "^1.4.3"
 mypy = "^0.991"
+colorama = "^0.4.6"
 
 [build-system]
 requires = ["poetry-core"]
