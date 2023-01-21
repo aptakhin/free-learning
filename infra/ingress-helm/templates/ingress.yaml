@@ -21,7 +21,7 @@ spec:
           service:
             name: frontend
             port:
-              number: 8080
+              number: 8000
       - pathType: Prefix
         path: "/api(/|$)(.*)"
         backend:
