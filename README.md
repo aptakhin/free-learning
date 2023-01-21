@@ -73,8 +73,8 @@ python -m http.server --directory out 3000
 
 ```bash
 # backend
-docker build -t registry.digitalocean.com/frlr/backend:001 backend
-docker push registry.digitalocean.com/frlr/backend:001
+docker build -t registry.digitalocean.com/frlr/backend:002 backend
+docker push registry.digitalocean.com/frlr/backend:002
 
 # frontend
 docker build -t registry.digitalocean.com/frlr/frontend:001 frontend
@@ -92,7 +92,11 @@ Helm:
 cd infra
 kubectl apply -f ingress.yaml
 
-helm upgrade --install backend backend-helm -f prod/backend.values.yaml
-helm upgrade --install frontend backend-helm -f prod/frontend.values.yaml
-helm upgrade --install nginx-controller nginx-stable/nginx-ingress
+helm upgrade --install backend backend-helm/ -f prod/backend.values.yaml
+helm upgrade --install frontend backend-helm/ -f prod/frontend.values.yaml
+helm upgrade --install age age-helm/ -f prod/age.values.yaml
+helm upgrade --install ingress ingress-helm/ -f prod/ingress.values.yaml
+helm upgrade --install nginx-controller/ nginx-stable/nginx-ingress
 ```
+
+DigitalOcean and pvc: https://docs.digitalocean.com/products/kubernetes/how-to/add-volumes/

@@ -12,4 +12,6 @@ COPY ./poetry.lock .
 
 RUN POETRY_VIRTUALENVS_CREATE=false poetry install --with=dev -n --no-root
 
+EXPOSE 8000
+
 COPY . .

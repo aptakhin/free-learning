@@ -1,0 +1,8 @@
+name: age
+repo: registry.digitalocean.com/frlr
+image: age
+imageTag: 'v1.1.0'
+exposePort: 5432
+imagePullSecrets: frlr
+
+storageSize: 5Gi

@@ -1,7 +1,7 @@
 name: backend
 repo: registry.digitalocean.com/frlr
 image: backend
-imageTag: '001'
+imageTag: '002'
 exposePort: 8000
 imagePullSecrets: frlr
 

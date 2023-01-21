@@ -3,23 +3,27 @@ kind: Ingress
 metadata:
   name: learning-ingress
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: backend
+      port:
+        number: 8000
   rules:
-  - host: "learning.aptakhin.name"
+  - host: {{ .Values.host }}
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: backend
+            name: frontend
             port:
-              number: 8000
+              number: 8080
       - pathType: Prefix
-        path: "/backend(/|$)(.*)"
+        path: "/api(/|$)(.*)"
         backend:
           service:
             name: backend

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  serviceName: {{ .Values.name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+      - name: {{ .Values.name }}
+        image: {{ .Values.repo }}/{{ .Values.image }}:{{ .Values.imageTag }}
+        {{- if .Values.command }}
+        command:
+        {{- range .Values.command }}
+        - {{. | quote}}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.args }}
+        args:
+        {{- range .Values.args }}
+        - {{. | quote}}
+        {{- end }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.exposePort }}
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql"
+          name: {{ .Values.name }}-pvc
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_DB
+          value: postgres
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .Values.name }}-pvc
+    spec:
+      accessModes:
+      # DO supports only ReadWriteOnce
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.storageSize }}
+      storageClassName: do-block-storage
