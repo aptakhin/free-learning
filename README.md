@@ -59,3 +59,40 @@ make lint-backend
 ```
 
 Also can also use VSCode flake8 extension to see linting errors online.
+
+### Build
+
+```bash
+# frontend
+cd frontend
+npm run buildAndExport
+# output will in /frontend/out
+
+python -m http.server --directory out 3000
+```
+
+```bash
+# backend
+docker build -t registry.digitalocean.com/frlr/backend:001 backend
+docker push registry.digitalocean.com/frlr/backend:001
+
+# frontend
+docker build -t registry.digitalocean.com/frlr/frontend:001 frontend
+docker push registry.digitalocean.com/frlr/frontend:001
+
+# age
+docker pull apache/age:v1.1.0
+docker tag apache/age:v1.1.0 registry.digitalocean.com/frlr/age:v1.1.0
+docker push registry.digitalocean.com/frlr/age:v1.1.0
+```
+
+Helm:
+
+```bash
+cd infra
+kubectl apply -f ingress.yaml
+
+helm upgrade --install backend backend-helm -f prod/backend.values.yaml
+helm upgrade --install frontend backend-helm -f prod/frontend.values.yaml
+helm upgrade --install nginx-controller nginx-stable/nginx-ingress
+```

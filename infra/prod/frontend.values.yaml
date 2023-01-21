@@ -1,0 +1,6 @@
+name: frontend
+repo: registry.digitalocean.com/frlr
+image: frontend
+imageTag: '001'
+exposePort: 8080
+imagePullSecrets: frlr
