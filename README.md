@@ -77,8 +77,8 @@ docker build -t registry.digitalocean.com/frlr/backend:003 backend
 docker push registry.digitalocean.com/frlr/backend:003
 
 # frontend
-docker build -t registry.digitalocean.com/frlr/frontend:003 frontend
-docker push registry.digitalocean.com/frlr/frontend:003
+docker build -t registry.digitalocean.com/frlr/frontend:00 frontend
+docker push registry.digitalocean.com/frlr/frontend:004
 
 # age
 docker pull apache/age:v1.1.0
@@ -96,8 +96,27 @@ helm upgrade --install backend backend-helm/ -f prod/backend.values.yaml
 helm upgrade --install frontend backend-helm/ -f prod/frontend.values.yaml
 helm upgrade --install age age-helm/ -f prod/age.values.yaml
 helm upgrade --install ingress ingress-helm/ -f prod/ingress.values.yaml
-helm upgrade --install nginx-controller/ nginx-stable/nginx-ingress
+helm upgrade --install nginx-controller nginx-stable/nginx-ingress -f prod/ingress-controller.values.yaml
 helm upgrade --install datadog -f prod/datadog.values.yaml --set datadog.site='datadoghq.eu' --set datadog.apiKey='...' datadog/datadog
 ```
 
 DigitalOcean and pvc: https://docs.digitalocean.com/products/kubernetes/how-to/add-volumes/
+
+## Local Github actions
+
+Use `act` for Github actions workflow debug: https://github.com/nektos/act
+
+```bash
+brew install act
+```
+
+```bash
+act -l
+act --secret-file .secret
+```
+
+```bash
+POD_ID=`kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep datadog-cluster`
+kubectl exec $POD_ID -- datadog-cluster-agent status
+kubectl delete pod $POD_ID
+```
