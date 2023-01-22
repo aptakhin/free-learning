@@ -32,12 +32,10 @@ jobs:
         push: true
         tags: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
 
-    - name: 'Deploy'
-      uses: 'deliverybot/helm@master'
-      with:
-        token: '${{ github.token }}'
-        chart: 'backend-helm'
-        release: backend
-        value-files: './infra/prod/backend.values.yaml'
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v2
       env:
-        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+        IMAGE_NAME: backend
+      with:
+        exec: helm upgrade --install ${{ env.IMAGE_NAME }} ./infra/backend-helm --wait --values=./infra/prod/backend/values.yaml --set imageTag=${{ github.run_id }}
+        kubeconfig: '${{ env.KUBECONFIG }}'
