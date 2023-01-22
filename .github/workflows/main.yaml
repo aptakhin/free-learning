@@ -11,7 +11,7 @@ jobs:
           # Version of doctl to install
           version: # optional, default is latest
           # DigitalOcean API Token
-          token: {{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Save DigitalOcean kubeconfig
         run: doctl kubernetes cluster kubeconfig save free-learning-k8s
