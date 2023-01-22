@@ -1,0 +1,41 @@
+controller:
+  metrics:
+    enabled: true
+
+
+# controller:
+  # pod:
+  #   annotations:
+  #     ad.datadoghq.com/ingress-controller.checks: '{}'
+
+controller:
+  config:
+    nginx-status-ipv4-whitelist: "10.245.0.0/16"
+
+controller:
+  pod:
+    annotations:
+      ad.datadoghq.com/controller.checks: |
+        {
+          "nginx": {
+            "instances": [{"nginx_status_url": "http://%%host%%/nginx_status"}]
+          },
+          "nginx_ingress_controller" : {
+            "instances": [{"prometheus_url": "http://%%host%%:10254/metrics"}]
+          }
+        }
+
+controller:
+  podAnnotations:
+    ad.datadoghq.com/controller.checks: |
+      {
+        "nginx": {
+          "instances": [{"nginx_status_url": "http://%%host%%/nginx_status"}]
+        },
+        "nginx_ingress_controller" : {
+          "instances": [{"prometheus_url": "http://%%host%%:10254/metrics"}]
+        }
+      }
+
+
+# controller.podLabels: []

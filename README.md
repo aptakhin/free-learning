@@ -96,7 +96,7 @@ helm upgrade --install backend backend-helm/ -f prod/backend.values.yaml
 helm upgrade --install frontend backend-helm/ -f prod/frontend.values.yaml
 helm upgrade --install age age-helm/ -f prod/age.values.yaml
 helm upgrade --install ingress ingress-helm/ -f prod/ingress.values.yaml
-helm upgrade --install nginx-controller/ nginx-stable/nginx-ingress
+helm upgrade --install nginx-controller nginx-stable/nginx-ingress -f prod/ingress-controller.values.yaml
 helm upgrade --install datadog -f prod/datadog.values.yaml --set datadog.site='datadoghq.eu' --set datadog.apiKey='...' datadog/datadog
 ```
 
@@ -113,4 +113,10 @@ brew install act
 ```bash
 act -l
 act --secret-file .secret
+```
+
+```bash
+POD_ID=`kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep datadog-cluster`
+kubectl exec $POD_ID -- datadog-cluster-agent status
+kubectl delete pod $POD_ID
 ```
