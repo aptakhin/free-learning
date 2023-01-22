@@ -54,5 +54,5 @@ jobs:
       env:
         IMAGE_NAME: backend
       with:
-        exec: helm upgrade --install ${{ env.IMAGE_NAME }} ./infra/backend-helm --wait --values=./infra/prod/backend/values.yaml --set imageTag=${{ github.run_id }}
+        exec: helm upgrade --install ${{ env.IMAGE_NAME }} ./infra/backend-helm --wait --values=./infra/prod/backend.values.yaml --set imageTag=${{ github.run_id }}
         kubeconfig: ${{ steps.save-kubeconfig.outputs.kubeconfig }}
