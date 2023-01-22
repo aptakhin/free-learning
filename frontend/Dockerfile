@@ -1,9 +1,2 @@
-FROM nginx:alpine
-
-WORKDIR /app
-
-EXPOSE 8000
-
-COPY ./nginx.conf /etc/nginx/nginx.conf
-
-COPY ./out .
+FROM nginx:1.23.3-alpine
+COPY ./out /usr/share/nginx/html

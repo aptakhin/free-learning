@@ -73,12 +73,12 @@ python -m http.server --directory out 3000
 
 ```bash
 # backend
-docker build -t registry.digitalocean.com/frlr/backend:002 backend
-docker push registry.digitalocean.com/frlr/backend:002
+docker build -t registry.digitalocean.com/frlr/backend:003 backend
+docker push registry.digitalocean.com/frlr/backend:003
 
 # frontend
-docker build -t registry.digitalocean.com/frlr/frontend:001 frontend
-docker push registry.digitalocean.com/frlr/frontend:001
+docker build -t registry.digitalocean.com/frlr/frontend:003 frontend
+docker push registry.digitalocean.com/frlr/frontend:003
 
 # age
 docker pull apache/age:v1.1.0
@@ -97,6 +97,7 @@ helm upgrade --install frontend backend-helm/ -f prod/frontend.values.yaml
 helm upgrade --install age age-helm/ -f prod/age.values.yaml
 helm upgrade --install ingress ingress-helm/ -f prod/ingress.values.yaml
 helm upgrade --install nginx-controller/ nginx-stable/nginx-ingress
+helm upgrade --install datadog -f prod/datadog.values.yaml --set datadog.site='datadoghq.eu' --set datadog.apiKey='...' datadog/datadog
 ```
 
 DigitalOcean and pvc: https://docs.digitalocean.com/products/kubernetes/how-to/add-volumes/

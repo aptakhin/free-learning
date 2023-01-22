@@ -13,6 +13,13 @@ spec:
     metadata:
       labels:
         app: {{ .Values.name }}
+        tags.datadoghq.com/env: "prod"
+        tags.datadoghq.com/service: {{ .Values.name }}
+        tags.datadoghq.com/version: "003"
+        admission.datadoghq.com/enabled: "true"
+      annotations:
+        admission.datadoghq.com/python-lib.version: v1.7.2
+        ad.datadoghq.com/{{ .Values.name }}.logs: {{ .Values.datadogLogsTag | quote }}
     spec:
       containers:
       - name: {{ .Values.name }}
@@ -29,6 +36,13 @@ spec:
         - {{. | quote}}
         {{- end }}
         {{- end }}
+        env:
+        - name: DD_PROFILING_ENABLED
+          value: "true"
+        - name: DD_LOGS_INJECTION
+          value: "true"
+        - name: DD_TRACE_SAMPLE_RATE
+          value: "1"
         ports:
         - containerPort: {{ .Values.exposePort }}
       imagePullSecrets:

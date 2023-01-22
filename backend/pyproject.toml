@@ -19,6 +19,7 @@ markdown-it-py = {extras = ["plugins"], version = "^2.1.0"}
 linkify-it-py = "^2.0.0"
 alembic = "^1.9.1"
 pyjwt = "^2.6.0"
+ddtrace = "^1.7.2"
 
 [tool.poetry.group.dev.dependencies]
 wemake-python-styleguide = "^0.17.0"

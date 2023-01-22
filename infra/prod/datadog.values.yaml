@@ -1,0 +1,13 @@
+targetSystem: "linux"
+
+datadog:
+  logs:
+    enabled: true
+    containerCollectAll: false
+    # containerCollectUsingFiles: true
+  apm:
+    portEnabled: true
+  orchestratorExplorer:
+    enabled: true
+clusterAgent:
+  replicas: 1
