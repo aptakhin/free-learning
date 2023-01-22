@@ -2,16 +2,22 @@ name: Rollout
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: GitHub Action for DigitalOcean - doctl
-        uses: digitalocean/action-doctl@v2.3.0
-        with:
-          # Version of doctl to install
-          version: # optional, default is latest
-          # DigitalOcean API Token
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - name: GitHub Action for DigitalOcean - doctl
+      uses: digitalocean/action-doctl@v2.3.0
+      with:
+        # Version of doctl to install
+        version: # optional, default is latest
+        # DigitalOcean API Token
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Save DigitalOcean kubeconfig
-        run: doctl kubernetes cluster kubeconfig save free-learning-k8s
+    - name: Save DigitalOcean kubeconfig
+      run: doctl kubernetes cluster kubeconfig save free-learning-k8s
+
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
