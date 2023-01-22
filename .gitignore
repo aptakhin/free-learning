@@ -1,3 +1,6 @@
+.secret
+backend/.env
+
 __pycache__
 .pytest_cache
 *.pyc
@@ -6,8 +9,3 @@ node_modules/
 /test-results/
 /playwright-report/
 /playwright/.cache/
-/test-results/
-/playwright-report/
-/playwright/.cache/
-backend/.env
-backend/.env

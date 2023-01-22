@@ -101,3 +101,12 @@ helm upgrade --install datadog -f prod/datadog.values.yaml --set datadog.site='d
 ```
 
 DigitalOcean and pvc: https://docs.digitalocean.com/products/kubernetes/how-to/add-volumes/
+
+## Local Github actions
+
+Use `act` for Github actions workflow debug: https://github.com/nektos/act
+
+```
+brew install act
+act
+```
