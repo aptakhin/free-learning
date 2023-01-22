@@ -106,7 +106,11 @@ DigitalOcean and pvc: https://docs.digitalocean.com/products/kubernetes/how-to/a
 
 Use `act` for Github actions workflow debug: https://github.com/nektos/act
 
-```
+```bash
 brew install act
-act
+```
+
+```bash
+act -l
+act --secret-file .secret
 ```

@@ -17,15 +17,12 @@ jobs:
       with:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-    - name: Save DigitalOcean kubeconfig
-      run: doctl kubernetes cluster kubeconfig save free-learning-k8s
-
     - id: save-kubeconfig
       name: Save KUBECONFIG
       run: |
         delimiter="$(openssl rand -hex 8)"
         echo "kubeconfig<<${delimiter}" >> $GITHUB_OUTPUT
-        cat /home/runner/.kube/config >> $GITHUB_OUTPUT
+        doctl kubernetes cluster kubeconfig show free-learning-k8s >> $GITHUB_OUTPUT
         echo "${delimiter}" >> $GITHUB_OUTPUT
 
     - name: Log in to DO Container Registry
