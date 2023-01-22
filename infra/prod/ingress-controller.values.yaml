@@ -1,41 +1,105 @@
-controller:
-  metrics:
-    enabled: true
+# controller:
+#   metrics:
+#     enabled: true
+
+
+# # controller:
+#   # pod:
+#   #   annotations:
+#   #     ad.datadoghq.com/ingress-controller.checks: '{}'
+
 
 
 # controller:
-  # pod:
-  #   annotations:
-  #     ad.datadoghq.com/ingress-controller.checks: '{}'
+#   pod:
+#     annotations:
+#       ad.datadoghq.com/controller.checks: |
+#         {
+#           "nginx": {
+#             "instances": [{"nginx_status_url": "http://%%host%%/nginx_status"}]
+#           },
+#           "nginx_ingress_controller" : {
+#             "instances": [{"prometheus_url": "http://%%host%%:10254/metrics"}]
+#           }
+#         }
 
+# controller:
+#   podAnnotations:
+#     ad.datadoghq.com/controller.checks: |
+#       {
+#         "nginx": {
+#           "instances": [{"nginx_status_url": "http://%%host%%/nginx_status"}]
+#         },
+#         "nginx_ingress_controller" : {
+#           "instances": [{"prometheus_url": "http://%%host%%:10254/metrics"}]
+#         }
+#       }
+
+
+# ---
 controller:
   config:
     nginx-status-ipv4-whitelist: "10.245.0.0/16"
 
-controller:
-  pod:
-    annotations:
-      ad.datadoghq.com/controller.checks: |
+  podLabels:
+    tags.datadoghq.com/env: prod
+    tags.datadoghq.com/service: ingress-tools-v2
+  podAnnotations:
+    ad.datadoghq.com/controller.check_names: |
+            [ "nginx", "nginx_ingress_controller" ]
+    ad.datadoghq.com/controller.init_configs: |
+            [{ }, { }]
+    ad.datadoghq.com/controller.instances: |
+      [
         {
-          "nginx": {
-            "instances": [{"nginx_status_url": "http://%%host%%/nginx_status"}]
-          },
-          "nginx_ingress_controller" : {
-            "instances": [{"prometheus_url": "http://%%host%%:10254/metrics"}]
-          }
+          "nginx_status_url": "http://%%host%%:18080/nginx_status"
+        }, {
+          "prometheus_url": "http://%%host%%:10254/metrics"
+        }
+      ]
+    ad.datadoghq.com/controller.logs: |
+            [{ "source": "nginx-ingress-controller" }]
+  service:
+    labels:
+      tags.datadoghq.com/env: prod
+      tags.datadoghq.com/service: ingress-tools-v2
+    annotations:
+      ad.datadoghq.com/service.check_names: |
+                [ "http_check" ]
+      ad.datadoghq.com/service.init_configs: |
+                [{ }]
+      ad.datadoghq.com/service.instances: |
+        [{
+          "name": "ingress-tools-v2",
+          "url": "http://%%host%%/healthz"
+        }]
+  metrics:
+    enabled: true
+  extraEnvs:
+  - name: DD_TRACE_AGENT_HOSTNAME
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  config:
+    enable-opentracing: true
+    datadog-collector-host: "$DD_TRACE_AGENT_HOSTNAME"
+    datadog-service-name: ingress-tools-v2
+    http-snippet: |
+      server {
+        listen 18080;
+
+        set $proxy_upstream_name "internal";
+
+        access_log off;
+
+        opentracing off;
+
+        location /nginx_status {
+          allow all;
+          stub_status on;
         }
 
-controller:
-  podAnnotations:
-    ad.datadoghq.com/controller.checks: |
-      {
-        "nginx": {
-          "instances": [{"nginx_status_url": "http://%%host%%/nginx_status"}]
-        },
-        "nginx_ingress_controller" : {
-          "instances": [{"prometheus_url": "http://%%host%%:10254/metrics"}]
+        location / {
+          return 404;
         }
       }
-
-
-# controller.podLabels: []
