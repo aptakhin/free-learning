@@ -23,12 +23,6 @@ jobs:
     - name: Log in to DO Container Registry
       run: doctl registry login --expiry-seconds 600
 
-    # - name: Echo
-    #   env:
-    #     IMAGE_NAME: backend
-    #   run: |
-    #     echo "::set-output name=image::$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.run_id }}"
-
     - name: Build and push
       uses: docker/build-push-action@v3
       env:
@@ -37,3 +31,13 @@ jobs:
         context: backend
         push: true
         tags: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+
+    - name: 'Deploy'
+      uses: 'deliverybot/helm@master'
+      with:
+        token: '${{ github.token }}'
+        chart: 'backend-helm'
+        release: backend
+        value-files: './infra/prod/backend.values.yaml'
+      env:
+        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
