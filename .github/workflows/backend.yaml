@@ -43,8 +43,10 @@ jobs:
 
     - name: pytest
       working-directory: ./backend
+      env:
+        PYTHONPATH: .
       run: |
-        pytest backend
+        pytest
 
     - name: Build and push
       uses: docker/build-push-action@v3
