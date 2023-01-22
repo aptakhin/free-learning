@@ -77,8 +77,8 @@ docker build -t registry.digitalocean.com/frlr/backend:003 backend
 docker push registry.digitalocean.com/frlr/backend:003
 
 # frontend
-docker build -t registry.digitalocean.com/frlr/frontend:003 frontend
-docker push registry.digitalocean.com/frlr/frontend:003
+docker build -t registry.digitalocean.com/frlr/frontend:00 frontend
+docker push registry.digitalocean.com/frlr/frontend:004
 
 # age
 docker pull apache/age:v1.1.0

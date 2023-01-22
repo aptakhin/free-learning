@@ -13,7 +13,7 @@ spec:
     service:
       name: frontend
       port:
-        number: 80
+        number: 3000
   rules:
   - host: {{ .Values.host }}
     http:
@@ -31,4 +31,4 @@ spec:
           service:
             name: frontend
             port:
-              number: 80
+              number: 3000

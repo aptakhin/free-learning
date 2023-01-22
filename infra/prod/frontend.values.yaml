@@ -1,8 +1,8 @@
 name: frontend
 repo: registry.digitalocean.com/frlr
 image: frontend
-imageTag: '004'
-exposePort: 80
+imageTag: '005'
+exposePort: 3000
 imagePullSecrets: frlr
 
 datadogLogsTag: '[{"source":"frontend","service":"learning"}]'
