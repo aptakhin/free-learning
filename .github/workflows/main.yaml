@@ -18,7 +18,11 @@ jobs:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
     - name: Save DigitalOcean kubeconfig
-      run: doctl kubernetes cluster kubeconfig show free-learning-k8s
+      run: doctl kubernetes cluster kubeconfig save free-learning-k8s
+
+    - name: Save KUBECONFIG
+      run: |
+        echo "KUBECONFIG_CONTENT=$(cat /home/runner/.kube/config)" >> $GITHUB_ENV
 
     - name: Log in to DO Container Registry
       run: doctl registry login --expiry-seconds 600
@@ -41,9 +45,6 @@ jobs:
         context: backend
         push: true
         tags: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
-    - name: Set ALL variables for this job | à la sauce GitHub Actions
-      run: |
-        echo "KUBECONFIG_CONTENT=$(cat /home/runner/.kube/config)" >> $GITHUB_ENV
 
     - name: Deploy
       uses: WyriHaximus/github-action-helm3@v2
