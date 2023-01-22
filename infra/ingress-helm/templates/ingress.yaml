@@ -3,10 +3,7 @@ kind: Ingress
 metadata:
   name: learning-ingress
   annotations:
-    # nginx.ingress.kubernetes.io/rewrite-target: /$2
-    # nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      try_files $uri index.html;
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   defaultBackend:

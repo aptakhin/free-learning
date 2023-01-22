@@ -6,7 +6,7 @@ export default function EmailAuth() {
     async function onSubmit(ev) {
         console.log('onSubmit', ev, email)
 
-        const result = await fetch('http://localhost:8000/api/v1/auth/send-email', {
+        const result = await fetch('https://learning.aptakhin.name/api/v1/auth/send-email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
