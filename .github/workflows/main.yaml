@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: docker/setup-buildx-action@v2
 
-    - name: GitHub Action for DigitalOcean - doctl
+    - name: Install doctl
       uses: digitalocean/action-doctl@v2.3.0
       with:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
@@ -23,10 +24,17 @@ jobs:
     - name: Log in to DO Container Registry
       run: doctl registry login --expiry-seconds 600
 
-    - name: Build
+    - name: Echo
+        env:
+          IMAGE_NAME: backend
+        run: |
+          echo "::set-output name=image::$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}"
+
+    - name: Build and push
+      uses: docker/build-push-action@v3
       env:
         IMAGE_NAME: backend
-      run: |
-        docker build $IMAGE_NAME -t "$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}" -f ./docker/go/Dockerfile
-        docker push $IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}
-        echo "::set-output name=image::$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}"
+      with:
+        context: backend
+        push: true
+        tags: $IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{ github.ref_name }}
