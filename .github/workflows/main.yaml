@@ -24,9 +24,9 @@ jobs:
       run: doctl registry login --expiry-seconds 600
 
     - name: Build
-        env:
-          IMAGE_NAME: backend
-        run: |
-          docker build $IMAGE_NAME -t "$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}" -f ./docker/go/Dockerfile
-          docker push $IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}
-          echo "::set-output name=image::$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}"
+      env:
+        IMAGE_NAME: backend
+      run: |
+        docker build $IMAGE_NAME -t "$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}" -f ./docker/go/Dockerfile
+        docker push $IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}
+        echo "::set-output name=image::$IMAGE_REGISTRY_BASE/$IMAGE_REGISTRY/$IMAGE_NAME:${{  github.ref_name }}"
