@@ -36,4 +36,4 @@ jobs:
       with:
         context: backend
         push: true
-        tags: ${{ env.IMAGE_REGISTRY }}/${{ IMAGE_NAME }}:${{ github.run_id }}
+        tags: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
