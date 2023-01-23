@@ -139,7 +139,10 @@ def _make_base_config_dict() -> dict[str, Any]:
                 'handlers': ['console_fallback_formatter'],
                 'level': 'INFO',
             },
-
+            'ddtrace': {
+                'handlers': ['console_fallback_formatter'],
+                'level': 'INFO',
+            },
             'sqlalchemy.engine': {
                 'handlers': ['console'],
                 'level': 'ERROR',

@@ -62,5 +62,5 @@ jobs:
       env:
         IMAGE_NAME: backend
       with:
-        exec: helm upgrade --install ${{ env.IMAGE_NAME }} ./infra/backend-helm --wait --values=./infra/prod/backend.values.yaml --set imageTag=${{ github.run_id }}
+        exec: helm upgrade --install ${{ env.IMAGE_NAME }} ./infra/backend-helm --wait --values=./infra/prod/backend.values.yaml --set imageTag=${{ github.run_id }} --set sendgridToken=${{ secret.SENDGRID_TOKEN }} --set jwtA14nToken=${{ secret.JWT_A14N_TOKEN }}
         kubeconfig: ${{ steps.save-kubeconfig.outputs.kubeconfig }}

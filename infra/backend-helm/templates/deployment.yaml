@@ -43,6 +43,16 @@ spec:
           value: "true"
         - name: DD_TRACE_SAMPLE_RATE
           value: "1"
+        - name: FL_BACKEND_DATABASE_URL
+          value: "postgresql+asyncpg://postgres:postgres@age.default.svc.cluster.local:5432"
+        - name: FL_BACKEND_SELF_URL
+          value: "https://learning.aptakhin.name"
+        - name: FL_SENDER_EMAIL
+          value: "noreply@aptakhin.name"
+        - name: FL_JWT_A14N_TOKEN
+          value: {{ .Values.jwtA14nToken }}
+        - name: FL_SENDGRID_TOKEN
+          value: {{ .Values.sendgridToken }}
         ports:
         - containerPort: {{ .Values.exposePort }}
       imagePullSecrets:
