@@ -23,10 +23,11 @@ jobs:
     - name: Run Playwright tests
       working-directory: acceptance
       run: npx playwright test
+    - name: List files
+      run: find ./ -type d
     - uses: actions/upload-artifact@v3
-      working-directory: acceptance
       if: always()
       with:
-        name: playwright-report
-        path: playwright-report/
+        name: acceptance/playwright-report
+        path: acceptance/playwright-report/
         retention-days: 30
