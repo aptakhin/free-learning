@@ -125,3 +125,7 @@ kubectl delete pod $POD_ID
 kubectl port-forward age-0 5666:5432
 FL_BACKEND_DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5666 alembic ...
 ```
+
+```
+kubectl run alembic --restart=Never -it --rm --image=registry.digitalocean.com/frlr/backend:3990903758 --env "FL_BACKEND_DATABASE_URL=postgresql+asyncpg://postgres:postgres@age:5432" -- alembic upgrade head
+```

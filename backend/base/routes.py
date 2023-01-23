@@ -1,6 +1,7 @@
 """."""
 
 import logging
+import random
 from typing import Optional
 from http import HTTPStatus
 
@@ -26,6 +27,7 @@ auth_router = APIRouter(
 @auth_router.post('/auth/send-email')
 async def send_email(
     send_email_query: SendEmailQuery,
+    settings: Settings = Depends(get_settings),  # noqa: B008, WPS404
     emailer: Emailer = Depends(get_emailer),  # noqa: B008, WPS404
     db: Database = Depends(get_db),  # noqa: B008, WPS404
 ):
@@ -36,14 +38,19 @@ async def send_email(
 
     account_id = account.account_id if account else FL_ANONYMOUS_ACCOUNT_ID
 
-    activation_phrase = 'magic-words'
+    # Here is the bug when email is unconfirmed
+
+    activation_phrase = 'magic-words' + str(random.uniform(0, 100000))
     await db.add_account_new_a14n_signature(
         account_id=account_id,
         signature_type='email',
         signature_value=activation_phrase,
     )
 
-    link = 'http://localhost:8000/api/v1/auth/confirm-email-with-{}'.format(activation_phrase)
+    link = '{self_url}/api/v1/auth/confirm-email-with-{activation_phrase}'.format(
+        self_url=settings.self_url,
+        activation_phrase=activation_phrase,
+    )
 
     await emailer.send_email(
         to=send_email_query.email,

@@ -4,6 +4,7 @@ Custom parsing of age Postgres types.
 As standard python age had running problems.
 """
 
+import datetime
 import json
 import logging
 from typing import Any, Optional
@@ -168,7 +169,7 @@ class Database(object):
                 account_a14n_signature_id=query_result['account_a14n_signature_id'],
             ) if query_result else None
 
-    async def add_account_new_a14n_signature(self, *, account_id: Optional[str], signature_type: str, signature_value: str) -> Optional[Account]:
+    async def add_account_new_a14n_signature(self, *, account_id: str, signature_type: str, signature_value: str) -> Optional[Account]:
         async with self._engine.begin() as conn:
             upsert_provider_query = (
                 insert(account_a14n_provider)
@@ -269,6 +270,7 @@ class Database(object):
                 account_a14n_signature.update()
                 .where(account_a14n_signature.c.id == account_a14n_signature_id)
                 .values(
+                    signed_in_at=datetime.now(),
                     device=device,
                 )
             )
