@@ -28,11 +28,6 @@ jobs:
     - name: Log in to DO Container Registry
       run: doctl registry login --expiry-seconds 600
 
-    # - name: Set up Python
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: "3.10"
-
     - uses: actions/setup-node@v3
       with:
         node-version: 16

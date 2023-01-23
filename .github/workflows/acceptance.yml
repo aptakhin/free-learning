@@ -24,7 +24,12 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       working-directory: acceptance
-      run: npx playwright test
+      if: always()
+      run: npx playwright test --config=web_tests/config.ts
+    - name: Run Playwright tests
+      working-directory: acceptance
+      if: always()
+      run: npx playwright test --config=api_tests/config.ts
     - uses: actions/upload-artifact@v3
       if: always()
       with:

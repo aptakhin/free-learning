@@ -33,7 +33,6 @@ jobs:
 
     - name: Run alembic migrations
       working-directory: ./backend
-      environment: dev
       env:
         PYTHONPATH: .
         FL_BACKEND_DATABASE_URL: ${{ env.BACKEND_DATABASE_URL }}
