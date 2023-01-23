@@ -6,7 +6,7 @@ env:
   IMAGE_REGISTRY: registry.digitalocean.com/frlr
 
 jobs:
-  smoke-test:
+  smoke-test-and-alembic:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -31,8 +31,9 @@ jobs:
     #   run: |
     #     pytest
 
-    - name: alembic
+    - name: Run alembic migrations
       working-directory: ./backend
+      environment: dev
       env:
         PYTHONPATH: .
         FL_BACKEND_DATABASE_URL: ${{ env.BACKEND_DATABASE_URL }}
