@@ -17,14 +17,14 @@ jobs:
     - name: Install dependencies
       working-directory: acceptance
       run: npm ci
+    - name: List files
+      run: find ./ -type d
     - name: Install Playwright Browsers
       working-directory: acceptance
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       working-directory: acceptance
       run: npx playwright test
-    - name: List files
-      run: find ./ -type d
     - uses: actions/upload-artifact@v3
       if: always()
       with:
