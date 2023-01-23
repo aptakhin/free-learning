@@ -6,7 +6,7 @@ env:
   IMAGE_REGISTRY: registry.digitalocean.com/frlr
 
 jobs:
-  smoke-test-and-alembic:
+  smoke-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -15,6 +15,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
+        cache: pip
 
     - name: Install dependencies
       env:
@@ -24,17 +25,36 @@ jobs:
         python -m pip install poetry==1.2.2
         poetry install --with=dev -n --no-root
 
-    # - name: pytest
-    #   working-directory: ./backend
-    #   env:
-    #     PYTHONPATH: .
-    #   run: |
-    #     pytest
+    - name: pytest
+      working-directory: ./backend
+      env:
+        PYTHONPATH: .
+      run: |
+        pytest
+
+  alembic:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        cache: pip
 
     - name: Dump env
       env:
         JOB_CONTEXT: ${{ toJson(env) }}
       run: echo "$JOB_CONTEXT"
+
+    - name: Install dependencies
+      env:
+        POETRY_VIRTUALENVS_CREATE: false
+      working-directory: ./backend
+      run: |
+        python -m pip install poetry==1.2.2
+        poetry install --with=dev -n --no-root
 
     - name: Run alembic migrations
       working-directory: ./backend
