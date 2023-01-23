@@ -31,6 +31,11 @@ jobs:
     #   run: |
     #     pytest
 
+    - name: Dump env
+      env:
+        JOB_CONTEXT: ${{ toJson(env) }}
+      run: echo "$JOB_CONTEXT"
+
     - name: Run alembic migrations
       working-directory: ./backend
       env:
