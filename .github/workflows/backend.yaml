@@ -4,8 +4,7 @@ on: [push]
 
 env:
   IMAGE_REGISTRY: registry.digitalocean.com/frlr
-  BACKEND_DATABASE_URL: ${{ env.BACKEND_DATABASE_URL }}
-
+  BACKEND_DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@age:5432'
 
 jobs:
   smoke-test:
