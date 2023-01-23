@@ -120,3 +120,8 @@ POD_ID=`kubectl get pods --no-headers -o custom-columns=":metadata.name" | grep 
 kubectl exec $POD_ID -- datadog-cluster-agent status
 kubectl delete pod $POD_ID
 ```
+
+```bash
+kubectl port-forward age-0 5666:5432
+FL_BACKEND_DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5666 alembic ...
+```
