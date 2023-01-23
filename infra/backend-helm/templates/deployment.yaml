@@ -44,7 +44,7 @@ spec:
         - name: DD_TRACE_SAMPLE_RATE
           value: "1"
         - name: FL_BACKEND_DATABASE_URL
-          value: "postgresql+asyncpg://postgres:postgres@age.default.svc.cluster.local:5432"
+          value: "postgresql+asyncpg://postgres:postgres@age:5432"
         - name: FL_BACKEND_SELF_URL
           value: "https://learning.aptakhin.name"
         - name: FL_SENDER_EMAIL
