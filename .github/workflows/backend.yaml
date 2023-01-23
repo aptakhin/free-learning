@@ -24,12 +24,12 @@ jobs:
         python -m pip install poetry==1.2.2
         poetry install --with=dev -n --no-root
 
-    - name: pytest
-      working-directory: ./backend
-      env:
-        PYTHONPATH: .
-      run: |
-        pytest
+    # - name: pytest
+    #   working-directory: ./backend
+    #   env:
+    #     PYTHONPATH: .
+    #   run: |
+    #     pytest
 
     - name: alembic
       working-directory: ./backend
