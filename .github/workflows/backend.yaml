@@ -4,6 +4,8 @@ on: [push]
 
 env:
   IMAGE_REGISTRY: registry.digitalocean.com/frlr
+  BACKEND_DATABASE_URL: ${{ env.BACKEND_DATABASE_URL }}
+
 
 jobs:
   smoke-test:
