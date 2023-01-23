@@ -18,7 +18,7 @@ account = Table(
     'account',
     metadata,
     Column('id', UUID, primary_key=True, server_default=text('uuid_generate_v4()')),
-    Column('name', String, nullable=False),
+    Column('name', String, nullable=True),
 )
 
 
