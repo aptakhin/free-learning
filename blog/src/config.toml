@@ -1,0 +1,5 @@
+baseURL = 'https://learnning.aptakhin.name/blog/'
+languageCode = 'en-us'
+title = 'Learning Blog'
+
+theme = 'nostyleplease'

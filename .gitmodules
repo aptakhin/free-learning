@@ -1,0 +1,3 @@
+[submodule "blog/themes/nostyleplease"]
+	path = blog/themes/nostyleplease
+	url = git@github.com:Masellum/hugo-theme-nostyleplease.git
