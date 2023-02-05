@@ -37,7 +37,7 @@ draft: false
 
 Тренировать с принципами continious integration & deployment. Только короткие ветки.
 
-Архитектура:
+Архитектура/дизайн:
 - Монолит. Трёхзвенка: фронтенд, бекенд, база данных.
 - Python 3.10 взят в силу моего знакомства с ним для скорости разработки.
 - FastAPI популярный asyncio-веб фреймворк.
@@ -64,18 +64,14 @@ draft: false
 Живёт на поддомене у меня, потому что пока есть только рабочее название free-learning:
 [^3]
 
-
 Весь трек попыток, проблем, задач и кусочков знаний сохранён в Miro на открытой доске: https://miro.com/app/board/uXjVP6is-xM=/
 
 Я сейчас не могу платить финансово зарплаты. Я могу помогать как ментор. Рекомендации. Достаточно давно занимаюсь внутри компаний и на других площадках: [^6] и [^7].
-
-{data-content="footnotes"}
 
 [^1]: https://ifuckinghatejira.com/9/
 [^2]: Ценности: [https://miro.com/app/board/uXjVP6is-xM=/?moveToWidget=3458764542540732072&cot=14]
 [^3]: Сайт: https://learning.aptakhin.name/
 [^4]: Гитхаб: https://github.com/aptakhin/free-learning
-[^5] Планы на ближайшие запуски: https://miro.com/app/board/uXjVP6is-xM=/?moveToWidget=3458764542274146516&cot=14
-
-[^6] https://getmentor.dev/mentor/aleksandr-ptahin-174
-[^7] https://vektor.ai/user/aptakhin
+[^5]: Планы на ближайшие запуски: https://miro.com/app/board/uXjVP6is-xM=/?moveToWidget=3458764542274146516&cot=14
+[^6]: https://getmentor.dev/mentor/aleksandr-ptahin-174
+[^7]: https://vektor.ai/user/aptakhin
