@@ -32,6 +32,7 @@ async def send_email(
     emailer: Emailer = Depends(get_emailer),  # noqa: B008, WPS404
     db: Database = Depends(get_db),  # noqa: B008, WPS404
 ):
+    print('XX', db)
     account: Optional[
         Account
     ] = await db.query_account_by_a14n_provider_type_and_value(

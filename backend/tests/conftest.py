@@ -2,7 +2,8 @@ import logging
 import logging.config  # noqa: WPS301
 import random
 import uuid
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
+from fastapi import FastAPI
 
 import pytest
 from app import create_app
@@ -22,10 +23,22 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture()
-def test_app():
+def test_app() -> FastAPI:
     app = create_app()
+    return app
 
-    yield app
+
+@pytest.fixture()
+def database() -> Database:
+    return container.resolve(Database)
+
+@pytest.fixture()
+def mock_database(database: Database) -> Database:
+    # return container.resolve(Database)
+    # patch.object(Foo, 'foo', autospec=True) as mock_foo
+    # with patch.object(Database, 'foo', autospec=True) as mock:
+    #     print('X', mock, database)
+    yield database
 
 
 def log_request(request: Request):

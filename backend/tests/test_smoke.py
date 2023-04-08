@@ -16,7 +16,7 @@ def test_api_healthz(client):
 @pytest.mark.asyncio()
 async def test_api_send_email(
     client,
-    mock_db: Database,
+    mock_database: Database,
     mock_emailer: SendgridEmailer,
 ):
     email_query = SendEmailQuery(email='pass-test-even-with-invalid-email.com')
@@ -25,14 +25,17 @@ async def test_api_send_email(
 
     assert response.status_code == 200, 'Response code not 200'
     assert response.json() == {'status': 'ok'}
-    mock_db.query_account_by_a14n_provider_type_and_value.assert_awaited_once()
-    mock_db.add_account_new_a14n_signature.assert_awaited_once()
+    mock_database.query_account_by_a14n_provider_type_and_value.assert_awaited_once()
+    mock_database.add_account_new_a14n_signature.assert_awaited_once()
     mock_emailer.send_email.assert_awaited_once()
 
 
 @pytest.mark.asyncio()
-async def test_api_confirm_email(client: TestClient, mock_db: Database):
-    mock_db.query_account_by_a14n_signature_type_and_value = AsyncMock(
+async def test_api_confirm_email(
+    client: TestClient,
+    mock_database: Database,
+):
+    mock_database.query_account_by_a14n_signature_type_and_value = AsyncMock(
         return_value=AccountA14N(
             account_id='aaa',
             account_a14n_provider_id='bbb',
@@ -45,4 +48,4 @@ async def test_api_confirm_email(client: TestClient, mock_db: Database):
     assert response.status_code == 200, 'Response code not 200'
     assert response.json() == {'status': 'ok'}
     assert response.cookies['auth'], 'No `auth` cookie set'
-    mock_db.query_account_by_a14n_signature_type_and_value.assert_awaited_once()
+    mock_database.query_account_by_a14n_signature_type_and_value.assert_awaited_once()

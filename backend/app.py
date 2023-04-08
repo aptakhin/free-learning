@@ -27,6 +27,7 @@ def create_app():
 
     settings = Settings()
     container.register(Settings, instance=settings)
+
     database = create_db_sync(settings)
     container.register(Database, instance=database)
 

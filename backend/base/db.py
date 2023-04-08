@@ -7,8 +7,8 @@ from fastapi import Depends
 from container import container
 
 
-def create_db_sync(settings: Settings):
-    asyncio.get_event_loop().run_until_complete(
+def create_db_sync(settings: Settings) -> Database:
+    return asyncio.get_event_loop().run_until_complete(
         Database.create_engine(settings.db_url),
     )
 

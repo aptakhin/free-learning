@@ -320,7 +320,7 @@ class Database(object):
                     account_a14n_signature.c.id == account_a14n_signature_id,
                 )
                 .values(
-                    signed_in_at=datetime.now(),
+                    signed_in_at=datetime.datetime.now(),
                     device=device,
                 )
             )
