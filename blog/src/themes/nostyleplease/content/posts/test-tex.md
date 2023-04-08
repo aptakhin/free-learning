@@ -6,7 +6,7 @@ draft: true
 ---
 Inline math: {{< texi `\varphi` >}}
 
-Displayed math: 
+Displayed math:
 {{< texd `\begin{aligned}
 \varphi &\Rightarrow \psi \\
 \varnothing &\rightarrow A

@@ -62,7 +62,7 @@ For example, if you have a black and white image it could make sense to invert i
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/Masellum/hugo-theme-nostyleplease. 
+Bug reports and pull requests are welcome on GitHub at https://github.com/Masellum/hugo-theme-nostyleplease.
 
 ## Thanks
 

@@ -1,10 +1,5 @@
 name: Playwright Tests
 on: [push]
-# on:
-#   push:
-#     branches: [ main, master ]
-#   pull_request:
-#     branches: [ main, master ]
 jobs:
   test:
     timeout-minutes: 60
@@ -17,7 +12,7 @@ jobs:
     - name: Install dependencies
       working-directory: acceptance
       run: npm ci
-    - name: List files
+    - name: Deug list files
       run: find ./ -type d
     - name: Install Playwright Browsers
       working-directory: acceptance

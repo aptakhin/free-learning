@@ -8,25 +8,25 @@ draft: true
 ```c
 #define UNICODE
 #include <windows.h>
- 
+
 int main(int argc, char **argv) {
   int speed = 0, speed1 = 0, speed2 = 0; // 1-20
   printf("Set Mouse Speed by Maverick\n");
- 
+
   SystemParametersInfo(SPI_GETMOUSESPEED, 0, &speed, 0);
   printf("Current speed: %2d\n", speed);
- 
+
   if (argc == 1) return 0;
   if (argc >= 2) sscanf(argv[1], "%d", &speed1);
   if (argc >= 3) sscanf(argv[2], "%d", &speed2);
- 
+
   if (argc == 2) // set speed to first value
     speed = speed1;
   else if (speed == speed1 || speed == speed2) // alternate
     speed = speed1 + speed2 - speed;
   else
     speed = speed1;  // start with first value
- 
+
   SystemParametersInfo(SPI_SETMOUSESPEED, 0,  speed, 0);
   SystemParametersInfo(SPI_GETMOUSESPEED, 0, &speed, 0);
   printf("New speed:     %2d\n", speed);
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 ```java
 import java.util.Map;
 import java.util.TreeSet;
- 
+
 public class GetEnv {
   /**
    * let's test generics
@@ -52,7 +52,7 @@ public class GetEnv {
     for(String k: new TreeSet<String>(env.keySet())) {
       System.out.printf("%s = %s\n", k, env.get(k));
     }
-  }    
+  }
 }
 ```
 
@@ -60,13 +60,13 @@ public class GetEnv {
 
 ```perl
 #!perl -w
- 
+
 # Time-stamp: <2002/04/06, 13:12:13 (EST), maverick, csvformat.pl>
 # Two pass CSV file to table formatter
- 
+
 $delim = $#ARGV >= 1 ? $ARGV[1] : ',';
 print STDERR "Split pattern: $delim\n";
- 
+
 # first pass
 open F, "<$ARGV[0]" or die;
 while(<F>)
@@ -77,10 +77,10 @@ while(<F>)
     (map {[length $_, $i++]} split($delim));
 }
 close F;
- 
+
 print STDERR 'Field width:   ', join(', ', @max), "\n";
 print STDERR join(' ', map {'-' x $_} @max);
- 
+
 # second pass
 open F, "<$ARGV[0]" or die;
 while(<F>)
@@ -98,7 +98,7 @@ close F;
 
 ```python
 # test python (sample from offlineimap)
- 
+
 class ExitNotifyThread(Thread):
     """This class is designed to alert a "monitor" to the fact that a thread has
     exited and to provide for the ability for it to find out why."""
@@ -131,10 +131,10 @@ class ExitNotifyThread(Thread):
             self.setExitCause('NORMAL')
         if not hasattr(self, 'exitmessage'):
             self.setExitMessage(None)
- 
+
         if exitthreads:
             exitthreads.put(self, True)
- 
+
     def setExitCause(self, cause):
         self.exitcause = cause
     def getExitCause(self):
@@ -173,9 +173,9 @@ class ExitNotifyThread(Thread):
 cd $ROOT_DIR
 DOT_FILES="lastpass weechat ssh Xauthority"
 for dotfile in $DOT_FILES; do conform_link "$DATA_DIR/$dotfile" ".$dotfile"; done
- 
+
 # TODO: refactor with suffix variables (or common cron values)
- 
+
 case "$PLATFORM" in
     linux)
         #conform_link "$CONF_DIR/shell/zshenv" ".zshenv"
@@ -199,41 +199,41 @@ case "$PLATFORM" in
 ```haskell
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
- 
+
 --import Prelude hiding (id)
 --import Control.Category (id)
 import Control.Arrow ((>>>), (***), arr)
 import Control.Monad (forM_)
 -- import Data.Monoid (mempty, mconcat)
- 
+
 -- import System.FilePath
- 
+
 import Hakyll
- 
- 
+
+
 main :: IO ()
 main = hakyll $ do
- 
+
     route   "css/*" $ setExtension "css"
     compile "css/*" $ byExtension (error "Not a (S)CSS file")
         [ (".css",  compressCssCompiler)
         , (".scss", sass)
         ]
- 
+
     route   "js/**" idRoute
     compile "js/**" copyFileCompiler
- 
+
     route   "img/*" idRoute
     compile "img/*" copyFileCompiler
- 
+
     compile "templates/*" templateCompiler
- 
+
     forM_ ["test.md", "index.md"] $ \page -> do
         route   page $ setExtension "html"
         compile page $ pageCompiler
             >>> applyTemplateCompiler "templates/default.html"
             >>> relativizeUrlsCompiler
- 
+
 sass :: Compiler Resource String
 sass = getResourceString >>> unixFilter "sass" ["-s", "--scss"]
                          >>> arr compressCss
@@ -244,7 +244,7 @@ sass = getResourceString >>> unixFilter "sass" ["-s", "--scss"]
 require_once($GLOBALS['g_campsiteDir']. "/$ADMIN_DIR/country/common.php");
 require_once($GLOBALS['g_campsiteDir']. "/classes/SimplePager.php");
 camp_load_translation_strings("api");
- 
+
 $f_country_language_selected = camp_session_get('f_language_selected', '');
 $f_country_offset = camp_session_get('f_country_offset', 0);
 if (empty($f_country_language_selected)) {
@@ -253,16 +253,16 @@ if (empty($f_country_language_selected)) {
 $ItemsPerPage = 20;
 $languages = Language::GetLanguages(null, null, null, array(), array(), true);
 $numCountries = Country::GetNumCountries($f_country_language_selected);
- 
+
 $pager = new SimplePager($numCountries, $ItemsPerPage, "index.php?");
- 
+
 $crumbs = array();
 $crumbs[] = array(getGS("Configure"), "");
 $crumbs[] = array(getGS("Countries"), "");
 echo camp_html_breadcrumbs($crumbs);
- 
+
 ?>
- 
+
 <?php  if ($g_user->hasPermission("ManageCountries")) { ?>
 <table BORDER="0" CELLSPACING="0" CELLPADDING="1">
     <tr>
@@ -270,7 +270,7 @@ echo camp_html_breadcrumbs($crumbs);
     </tr>
 </table>
 ```
-## Test for Javascript 
+## Test for Javascript
 ```js
 import isTypedArray from 'lodash/isTypedArray';
 import reverse from 'lodash/reverse';
