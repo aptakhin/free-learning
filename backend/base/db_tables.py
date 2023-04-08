@@ -1,15 +1,6 @@
-from sqlalchemy import (
-    DateTime,
-    ForeignKey,
-    Table,
-    Column,
-    MetaData,
-    String,
-    UniqueConstraint,
-    text,
-)
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-
+from sqlalchemy import (Column, DateTime, ForeignKey, MetaData, String, Table,
+                        UniqueConstraint, text)
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 metadata = MetaData()
 

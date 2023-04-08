@@ -20,6 +20,7 @@ linkify-it-py = "^2.0.0"
 alembic = "^1.9.1"
 pyjwt = "^2.6.0"
 ddtrace = "^1.7.2"
+punq = "^0.6.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-dotenv = "^0.5.2"

@@ -1,32 +1,17 @@
-"""."""
-
 import logging
 import random
-from typing import Optional
 from http import HTTPStatus
+from typing import Optional
 
-from base.config import (
-    FL_MODULE_BASE,
-    Settings,
-    get_settings,
-    FL_ANONYMOUS_ACCOUNT_ID,
-)
-from base.db import get_db, Database
-from base.email import get_emailer, Emailer
-from base.models import (
-    Entity,
-    EntityUpsertResult,
-    Link,
-    LinkUpsertResult,
-    EntityQueryResult,
-    EntityQuery,
-    AccountAuthToken,
-    SendEmailQuery,
-    Account,
-    AccountA14N,
-)
-from base.view import prepare_view_inplace
 import jwt
+from base.config import (FL_ANONYMOUS_ACCOUNT_ID, FL_MODULE_BASE, Settings,
+                         get_settings)
+from base.db import Database, get_db
+from base.email import Emailer, get_emailer
+from base.models import (Account, AccountA14N, AccountAuthToken, Entity,
+                         EntityQuery, EntityQueryResult, EntityUpsertResult,
+                         Link, LinkUpsertResult, SendEmailQuery)
+from base.view import prepare_view_inplace
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -137,8 +122,6 @@ async def confirm_email(
         account_a14n_signature_id=account_a14n.account_a14n_signature_id,
         device=device,
     )
-    # >>> jwt.decode(encoded, "secret", algorithms=["HS256"])
-    # {'some': 'payload'}
 
     response = JSONResponse(content={'status': 'ok'})
     response.set_cookie(key='auth', value=encoded_auth)
@@ -146,7 +129,7 @@ async def confirm_email(
 
 
 router = APIRouter(
-    prefix='/{org_slug}/api/%s/v1' % (FL_MODULE_BASE,),
+    prefix='/{0}/api/%s/v1'.format(FL_MODULE_BASE),
     tags=['base'],
     responses={404: {'description': 'Not found'}},
 )

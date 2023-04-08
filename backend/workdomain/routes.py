@@ -1,13 +1,5 @@
-"""."""
-
-from fastapi import APIRouter, Depends
-from httpx import AsyncClient
-from base.config import get_settings, FL_MODULE_WORKDOMAIN
 from base.db import get_db
-
-# from app import get_app
-from base.models import Entity, EntityUpsertResult
-from base.routes import upsert_entity
+from fastapi import APIRouter, Depends
 
 router = APIRouter(
     prefix='/api/{FL_MODULE_WORKDOMAIN}/v1',
@@ -20,8 +12,8 @@ router = APIRouter(
 async def link(
     # entity: Entity,
     # org: str,
-    db=Depends(get_db),  # noqa: B008
-    # settings=Depends(get_settings),  # noqa: B008
+    db=Depends(get_db),
+    # settings=Depends(get_settings),
 ):
     """Links entity."""
     # await upsert_entity(

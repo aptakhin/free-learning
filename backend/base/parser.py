@@ -25,7 +25,7 @@ class ExtractRule(object):
         self.typ = typ
 
     def extract(self, blocks: list[ParserBlock]) -> list[ParserBlock]:
-        """The simplest implementantion of extracting regex blocks from text."""
+        """The trivial regex blocks extraction from text."""
         new_blocks = []
 
         default_block = 'com.freelearning.base.markdown_raw'

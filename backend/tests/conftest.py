@@ -1,44 +1,31 @@
-"""."""
-
 import logging
 import logging.config  # noqa: WPS301
 import random
-from unittest.mock import AsyncMock
 import uuid
+from unittest.mock import AsyncMock
 
-from httpx import Request, Response
-
-from app import create_app
-from base.config import (
-    get_settings,
-    FL_MODULE_BASE,
-    FL_MODULE_BASE_ENTITY,
-    Settings,
-    FL_MODULE_BASE_LINK_CHILD_OF,
-    FL_MODULE_BASE_WEB_ROUTE,
-    FL_MODULE_BASE_LINK_NEXT_OF,
-)
-from base.db import get_db
-from base.email import get_emailer
-from base.models import Entity, Link
-from fastapi.testclient import TestClient
 import pytest
-
+from app import create_app
+from base.config import (FL_MODULE_BASE, FL_MODULE_BASE_ENTITY,
+                         FL_MODULE_BASE_LINK_CHILD_OF,
+                         FL_MODULE_BASE_LINK_NEXT_OF, FL_MODULE_BASE_WEB_ROUTE,
+                         Settings)
+from base.db import get_db
+from base.db_age import Database
+from base.email import Emailer
+from base.models import Entity, Link
+from container import container
+from fastapi.testclient import TestClient
+from httpx import Request, Response
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_app():
     app = create_app()
 
     yield app
-
-    if get_db in app.dependency_overrides:
-        del app.dependency_overrides[get_db]
-
-    if get_emailer in app.dependency_overrides:
-        del app.dependency_overrides[get_emailer]
 
 
 def log_request(request: Request):
@@ -51,7 +38,7 @@ def log_response(response: Response):
     print(f'Got response: {response} {response.url}')
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(test_app):
     test_client = TestClient(test_app)
 
@@ -61,40 +48,24 @@ def client(test_app):
     yield test_client
 
 
-def _override_dependency(*, app, override, obj):
-    mock_obj = obj
-
-    async def get_mock_obj():
-        return mock_obj
-
-    app.dependency_overrides[override] = get_mock_obj
-    return mock_obj
+@pytest.fixture()
+def mock_db():
+    container.register(Database, AsyncMock)
+    return container.resolve(Database)
 
 
-@pytest.fixture
-def mock_db(test_app):
-    return _override_dependency(
-        override=get_db,
-        app=test_app,
-        obj=AsyncMock(),
-    )
+@pytest.fixture()
+def mock_emailer():
+    container.register(Emailer, AsyncMock)
+    return container.resolve(Emailer)
 
 
-@pytest.fixture
-def mock_emailer(test_app):
-    return _override_dependency(
-        override=get_emailer,
-        app=test_app,
-        obj=AsyncMock(),
-    )
-
-
-@pytest.fixture
+@pytest.fixture()
 def test_org():
     yield 'test_org'
 
 
-@pytest.fixture
+@pytest.fixture()
 def unsaved_entity():
     yield Entity(
         typ=FL_MODULE_BASE_ENTITY,
@@ -102,7 +73,7 @@ def unsaved_entity():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def saved_entity1(client, unsaved_entity):
     response1 = client.post(
         f'/api/{FL_MODULE_BASE}/v1/upsert-entity',
@@ -111,7 +82,7 @@ def saved_entity1(client, unsaved_entity):
     yield response1.json()
 
 
-@pytest.fixture
+@pytest.fixture()
 def saved_entity2(client, unsaved_entity):
     response2 = client.post(
         f'/api/{FL_MODULE_BASE}/v1/upsert-entity',
@@ -120,7 +91,7 @@ def saved_entity2(client, unsaved_entity):
     yield response2.json()
 
 
-@pytest.fixture
+@pytest.fixture()
 async def database_conn_iter():
     async for database_conn in get_db(Settings()):
         yield database_conn
@@ -210,7 +181,7 @@ async def make_linked(db, *, num_link_to_root_entities: int):
     return entity_row
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 async def db(database_conn):
     yield database_conn
 
@@ -256,7 +227,7 @@ def logger():
     yield
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def debug_log(caplog):
     caplog.set_level(logging.DEBUG)
     yield

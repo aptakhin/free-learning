@@ -1,3 +1,4 @@
+from container import container
 from pydantic import BaseSettings
 
 
@@ -34,8 +35,8 @@ class Settings(BaseSettings):
         }
 
 
-def get_settings():  # noqa: D103
-    return Settings()
+def get_settings() -> Settings:
+    return container.resolve(Settings)
 
 
 FL_MODULE_BASE = 'com.freelearning.base'

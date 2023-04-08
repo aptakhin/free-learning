@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 from base.db_age import Database
 from base.email import SendgridEmailer
-from base.models import SendEmailQuery, AccountA14N
+from base.models import AccountA14N, SendEmailQuery
 from fastapi.testclient import TestClient
 
 
@@ -13,9 +13,11 @@ def test_api_healthz(client):
     assert response.json() == {'status': True}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_api_send_email(
-    client, mock_db: Database, mock_emailer: SendgridEmailer
+    client,
+    mock_db: Database,
+    mock_emailer: SendgridEmailer,
 ):
     email_query = SendEmailQuery(email='pass-test-even-with-invalid-email.com')
 
@@ -28,14 +30,14 @@ async def test_api_send_email(
     mock_emailer.send_email.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_api_confirm_email(client: TestClient, mock_db: Database):
     mock_db.query_account_by_a14n_signature_type_and_value = AsyncMock(
         return_value=AccountA14N(
             account_id='aaa',
             account_a14n_provider_id='bbb',
             account_a14n_signature_id='ccc',
-        )
+        ),
     )
 
     response = client.get('/api/v1/auth/confirm-email-with-aaaa')

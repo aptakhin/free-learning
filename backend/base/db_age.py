@@ -9,18 +9,16 @@ import json
 import logging
 from typing import Any, Optional
 
-from base.models import Account, AccountA14N
 from base.db_tables import (
     account,
     account_a14n_provider,
     account_a14n_signature,
 )
-from base.models import Entity, Link, EntityQuery
+from base.models import Account, AccountA14N, Entity, EntityQuery, Link
 from sqlalchemy import event, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.sql import text
-
 
 logger = logging.getLogger(__name__)
 
@@ -154,21 +152,21 @@ class Database(object):
             statement_exec_result = await conn.execute(
                 text(
                     "EXECUTE query_linked_procedure_{0}('{1}')".format(
-                        self._prep_statement_counter, param_obj_str
+                        self._prep_statement_counter, param_obj_str,
                     )
                 )
             )
             query_result = [row.items for row in statement_exec_result]
         logger.debug(
             'Linked query result: {0}'.format(
-                json.dumps(query_result, indent=0)
+                json.dumps(query_result, indent=0),
             )
         )
         self._prep_statement_counter += 1
         return query_result
 
     async def query_account_by_a14n_signature_type_and_value(
-        self, *, signature_type: str, signature_value: str
+        self, *, signature_type: str, signature_value: str,
     ) -> AccountA14N:
         async with self._engine.begin() as conn:
             query = (
@@ -185,7 +183,7 @@ class Database(object):
                 )
                 .select_from(
                     account.join(account_a14n_provider).join(
-                        account_a14n_signature
+                        account_a14n_signature,
                     ),
                 )
                 .where(
@@ -201,10 +199,10 @@ class Database(object):
                 AccountA14N(
                     account_id=query_result['account_id'],
                     account_a14n_provider_id=query_result[
-                        'account_a14n_provider_id'
+                        'account_a14n_provider_id',
                     ],
                     account_a14n_signature_id=query_result[
-                        'account_a14n_signature_id'
+                        'account_a14n_signature_id',
                     ],
                 )
                 if query_result
@@ -245,7 +243,7 @@ class Database(object):
                 )
             )
             insert_signature_response = await conn.execute(
-                insert_signature_query
+                insert_signature_query,
             )
             insert_signature_result = insert_signature_response.one()
             return Account(
@@ -313,13 +311,13 @@ class Database(object):
             await conn.execute(update_provider_query)
 
     async def confirm_a14n_with_device(
-        self, account_a14n_signature_id: str, device: dict[str, Any]
+        self, account_a14n_signature_id: str, device: dict[str, Any],
     ) -> None:
         async with self._engine.begin() as conn:
             update_provider_query = (
                 account_a14n_signature.update()
                 .where(
-                    account_a14n_signature.c.id == account_a14n_signature_id
+                    account_a14n_signature.c.id == account_a14n_signature_id,
                 )
                 .values(
                     signed_in_at=datetime.now(),

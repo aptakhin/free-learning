@@ -1,8 +1,8 @@
 import logging
-import logging.config
-from colorama import Fore
-
+import logging.config  # noqa: WPS301
 from typing import Any
+
+from colorama import Fore, just_fix_windows_console
 
 
 class ColorfulConsoleFormatter(logging.Formatter):
@@ -12,7 +12,6 @@ class ColorfulConsoleFormatter(logging.Formatter):
     def formatException(self, ei):
         traceback = super().formatException(ei)
         return self.colorize_own_code(traceback)
-        # return '{}{}{}'.format(Fore.LIGHTRED_EX, self.colorize_own_code(traceback), Fore.RESET)
 
     def colorize_own_code(self, code):
         lines = []
@@ -24,7 +23,7 @@ class ColorfulConsoleFormatter(logging.Formatter):
 
 
 class FigureLogRecord(logging.LogRecord):
-    def getMessage(self) -> str:
+    def getMessage(self) -> str:  # noqa: N802
         msg = str(self.msg)
         if self.args:
             msg = msg.format(*self.args)
@@ -34,7 +33,7 @@ class FigureLogRecord(logging.LogRecord):
 def make_log_record_factory(*args, **kwargs):
     module_name = args[0]
     # Fallback to old logging style
-    if module_name.startswith('uvicorn'):
+    if module_name.startswith('uvicorn') or module_name in ('_client', 'httpx._client', 'asyncio'):
         return logging.LogRecord(*args, **kwargs)
 
     return FigureLogRecord(*args, **kwargs)
@@ -43,45 +42,31 @@ def make_log_record_factory(*args, **kwargs):
 def listloggers():
     rootlogger = logging.getLogger()
     print(rootlogger)
-    for handler in rootlogger.handlers:
-        print('     %s' % handler)
+    for log_handler in rootlogger.handlers:
+        print('     %s' % log_handler)  # noqa: WPS323, WPS421
 
     for name, logger in logging.Logger.manager.loggerDict.items():
-        print('+ [%-40s] %s ' % (name, logger))
+        print('+ [%-40s] %s ' % (name, logger))  # noqa: WPS323, WPS421
         if not isinstance(logger, logging.PlaceHolder):
-            for handler in logger.handlers:
-                print('     %s' % handler)
+            for log_handler in logger.handlers:
+                print('     %s' % log_handler)  # noqa: WPS323, WPS421
 
 
 def init_logger():
     # override uvicorn
     parent = logging.getLogger('uvicorn')
-    for x in parent.handlers:
-        parent.removeHandler(x)
+    for log_handler in parent.handlers:
+        parent.removeHandler(log_handler)
 
     parent = logging.getLogger('uvicorn.access')
-    for x in parent.handlers:
-        parent.removeHandler(x)
+    for log_handler in parent.handlers:
+        parent.removeHandler(log_handler)
 
     config = _make_base_config_dict()
     logging.config.dictConfig(config)
     logging.setLogRecordFactory(make_log_record_factory)
 
-    from colorama import just_fix_windows_console
-
     just_fix_windows_console()
-
-    # listloggers()
-
-
-# + [concurrent.futures                      ] <Logger concurrent.futures (DEBUG)>
-# + [concurrent                              ] <logging.PlaceHolder object at 0x1009a9ba0>
-# + [asyncio                                 ] <Logger asyncio (DEBUG)>
-# + [uvicorn.error                           ] <Logger uvicorn.error (INFO)>
-# + [uvicorn                                 ] <Logger uvicorn (INFO)>
-#      <StreamHandler <stderr> (NOTSET)>
-# + [uvicorn.access                          ] <Logger uvicorn.access (INFO)>
-#      <StreamHandler <stdout> (NOTSET)>
 
 
 def _make_base_config_dict() -> dict[str, Any]:

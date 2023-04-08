@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Iterator
 import httpx
 import logging
 
@@ -17,7 +18,7 @@ class Emailer(ABC):
 
     @abstractmethod
     async def send_email(
-        self, *, to: str, subject: str, content: list[dict[str, str]]
+        self, *, to: str, subject: str, content: list[dict[str, str]],
     ):
         ...
 
@@ -33,12 +34,12 @@ class SendgridEmailer(Emailer):
             headers=headers,
         )
 
-    async def close(self):
+    async def close(self) -> None:
         await self._client.aclose()
 
     async def send_email(
-        self, *, to: str, subject: str, content: list[dict[str, str]]
-    ):
+        self, *, to: str, subject: str, content: list[dict[str, str]],
+    ) -> None:
         json_body = {
             'personalizations': [{'to': [{'email': to}]}],
             'from': {'email': self._from},
@@ -51,16 +52,16 @@ class SendgridEmailer(Emailer):
         )
         if response.status_code != 202:
             logger.error(
-                'Got response code=%s with response=%s',
+                'Got response code={} with response={}',
                 response.status_code,
                 response.text,
             )
-            raise CantSendEmail(response.text)
+            # raise CantSendEmail(response.text)
 
 
 async def get_emailer(
     settings: Settings = Depends(get_settings),
-) -> Emailer:  # noqa: B008
+) -> Iterator[Emailer]:  # noqa: B008
     emailer = SendgridEmailer(
         token=settings.sendgrid_token,
         from_=settings.sender_email,

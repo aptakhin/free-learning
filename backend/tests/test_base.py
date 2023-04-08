@@ -1,17 +1,16 @@
-"""."""
-from base.models import Entity, Link, EntityQuery
+import pytest
 from base.config import (
     FL_MODULE_BASE,
     FL_MODULE_BASE_LINK_CHILD_OF,
-    FL_MODULE_BASE_WEB_ROUTE,
     FL_MODULE_BASE_LINK_NEXT_OF,
+    FL_MODULE_BASE_WEB_ROUTE,
 )
+from base.models import Entity, EntityQuery, Link
 from conftest import make_linked
-import pytest
 
 
-@pytest.mark.move2acceptance
-@pytest.mark.skip
+@pytest.mark.move2acceptance()
+@pytest.mark.skip()
 def test_entity__upsert__insert(client, unsaved_entity: Entity):
     response = client.post(
         f'/api/{FL_MODULE_BASE}/v1/upsert-entity',
@@ -23,8 +22,8 @@ def test_entity__upsert__insert(client, unsaved_entity: Entity):
     assert js['id'], js
 
 
-@pytest.mark.move2acceptance
-@pytest.mark.skip
+@pytest.mark.move2acceptance()
+@pytest.mark.skip()
 def test_link_upsert__insert(client, saved_entity1: dict, saved_entity2: dict):
     link = Link(
         typ=FL_MODULE_BASE_LINK_CHILD_OF,
@@ -43,9 +42,9 @@ def test_link_upsert__insert(client, saved_entity1: dict, saved_entity2: dict):
     assert js['id'], js
 
 
-@pytest.mark.asyncio
-@pytest.mark.move2acceptance
-@pytest.mark.skip
+@pytest.mark.asyncio()
+@pytest.mark.move2acceptance()
+@pytest.mark.skip()
 async def test_query__end_entity_id(client, database_conn_iter):
     num_link_to_root_entities = 10
 
@@ -55,8 +54,8 @@ async def test_query__end_entity_id(client, database_conn_iter):
             num_link_to_root_entities=num_link_to_root_entities,
         )
 
-    with open('dump.txt', 'wt') as f:
-        f.write(str(root_entity['id']))
+    with open('dump.txt', 'wt') as dump_file:
+        dump_file.write(str(root_entity['id']))
 
     query = EntityQuery(
         link_label=FL_MODULE_BASE_LINK_CHILD_OF,
@@ -75,9 +74,9 @@ async def test_query__end_entity_id(client, database_conn_iter):
     assert len(js['query_result']) == num_link_to_root_entities
 
 
-@pytest.mark.asyncio
-@pytest.mark.move2acceptance
-@pytest.mark.skip
+@pytest.mark.asyncio()
+@pytest.mark.move2acceptance()
+@pytest.mark.skip()
 async def test_query__start_entity_label_and_properties(
     database_conn_iter,
     # debug_log,
@@ -95,7 +94,7 @@ async def test_query__start_entity_label_and_properties(
                 start_entity_properties={'route': 'web/test'},
                 link_label=FL_MODULE_BASE_LINK_NEXT_OF,
                 end_entity_id=str(root_entity['id']),
-            )
+            ),
         )
 
         assert len(route_results) == 1

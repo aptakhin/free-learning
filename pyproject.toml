@@ -1,19 +1,23 @@
 [tool.flake8]
 ignore = [
+    # Do not perform function calls in argument defaults
+    'B008',  # FastAPI uses Depends logic a lot
     # Missing docstring in public module
-    'D100',
+    'D100',  # Temporary
+    # Missing docstring in public class
+    'D101',  # Temporary
     # Missing docstring in public method
-    'D102',
+    'D102',  # Temporary
     # Missing docstring in public function
-    'D103',
+    'D103',  # Temporary
     # Missing docstring in public nested class
-    'D106',
+    'D106',  # Temporary
     # isort found an import in the wrong position
-    'I001',
+    # 'I001',
     # isort found an unexpected blank line in imports
-    'I004',
+    # 'I004',
     # isort found an unexpected missing import
-    'I005',
+    # 'I005',
     # Found too many module members: ... > 7
     'WPS202',
     # Found string literal over-use: ... > 3
@@ -22,6 +26,8 @@ ignore = [
     'WPS305',
     # Found a line that starts with a dot
     'WPS348',
+    # line break before binary operator
+    'W503',
 ]
 per-file-ignores = [
     # S101: Use of assert detected
