@@ -5,10 +5,26 @@ import random
 from typing import Optional
 from http import HTTPStatus
 
-from base.config import FL_MODULE_BASE, Settings, get_settings, FL_ANONYMOUS_ACCOUNT_ID
+from base.config import (
+    FL_MODULE_BASE,
+    Settings,
+    get_settings,
+    FL_ANONYMOUS_ACCOUNT_ID,
+)
 from base.db import get_db, Database
 from base.email import get_emailer, Emailer
-from base.models import Entity, EntityUpsertResult, Link, LinkUpsertResult, EntityQueryResult, EntityQuery, AccountAuthToken, SendEmailQuery, Account, AccountA14N
+from base.models import (
+    Entity,
+    EntityUpsertResult,
+    Link,
+    LinkUpsertResult,
+    EntityQueryResult,
+    EntityQuery,
+    AccountAuthToken,
+    SendEmailQuery,
+    Account,
+    AccountA14N,
+)
 from base.view import prepare_view_inplace
 import jwt
 from fastapi import APIRouter, Depends, Request
@@ -31,7 +47,9 @@ async def send_email(
     emailer: Emailer = Depends(get_emailer),  # noqa: B008, WPS404
     db: Database = Depends(get_db),  # noqa: B008, WPS404
 ):
-    account: Optional[Account] = await db.query_account_by_a14n_provider_type_and_value(
+    account: Optional[
+        Account
+    ] = await db.query_account_by_a14n_provider_type_and_value(
         provider_type='email',
         provider_value=send_email_query.email,
     )
@@ -47,15 +65,19 @@ async def send_email(
         signature_value=activation_phrase,
     )
 
-    link = '{self_url}/api/v1/auth/confirm-email-with-{activation_phrase}'.format(
-        self_url=settings.self_url,
-        activation_phrase=activation_phrase,
+    link = (
+        '{self_url}/api/v1/auth/confirm-email-with-{activation_phrase}'.format(
+            self_url=settings.self_url,
+            activation_phrase=activation_phrase,
+        )
     )
 
     await emailer.send_email(
         to=send_email_query.email,
         subject='Freelearning activation link',
-        content=[{'type': 'text/plain', 'value': 'Enter here: {}'.format(link)}],
+        content=[
+            {'type': 'text/plain', 'value': 'Enter here: {}'.format(link)}
+        ],
     )
 
     return {'status': 'ok'}
@@ -68,11 +90,17 @@ async def confirm_email(
     db: Database = Depends(get_db),  # noqa: B008, WPS404
     settings: Settings = Depends(get_settings),  # noqa: B008, WPS404
 ):
-    account_a14n: Optional[AccountA14N] = await db.query_account_by_a14n_signature_type_and_value(signature_type='email', signature_value=activation_phrase)
+    account_a14n: Optional[
+        AccountA14N
+    ] = await db.query_account_by_a14n_signature_type_and_value(
+        signature_type='email', signature_value=activation_phrase
+    )
 
     if not account_a14n:
         raise ValueError('ss')
-        return JSONResponse(content={'status': 'not-ok'}, status_code=HTTPStatus.UNAUTHORIZED)
+        return JSONResponse(
+            content={'status': 'not-ok'}, status_code=HTTPStatus.UNAUTHORIZED
+        )
 
     if account_a14n.account_id == FL_ANONYMOUS_ACCOUNT_ID:
         # Register new account by confirmed provider
@@ -97,7 +125,12 @@ async def confirm_email(
     request_headers = request.headers
     device = {
         header: request_headers[header]
-        for header in ('user-agent', 'sec-ch-ua', 'sec-ch-ua-platform', 'sec-ch-ua-mobile')
+        for header in (
+            'user-agent',
+            'sec-ch-ua',
+            'sec-ch-ua-platform',
+            'sec-ch-ua-mobile',
+        )
         if header in request_headers
     }
     await db.confirm_a14n_with_device(
@@ -141,11 +174,13 @@ async def query_linked(
 
     riched_result = []
     for it in query_result:
-        riched_result.append([
-            prepare_view_inplace(it[0]),
-            it[1],
-            prepare_view_inplace(it[2]),
-        ])
+        riched_result.append(
+            [
+                prepare_view_inplace(it[0]),
+                it[1],
+                prepare_view_inplace(it[2]),
+            ]
+        )
 
     riched_result.sort(key=lambda it: it[0]['id'])
 

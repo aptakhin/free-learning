@@ -14,7 +14,9 @@ def test_api_healthz(client):
 
 
 @pytest.mark.asyncio
-async def test_api_send_email(client, mock_db: Database, mock_emailer: SendgridEmailer):
+async def test_api_send_email(
+    client, mock_db: Database, mock_emailer: SendgridEmailer
+):
     email_query = SendEmailQuery(email='pass-test-even-with-invalid-email.com')
 
     response = client.post('/api/v1/auth/send-email', json=email_query.dict())
@@ -28,8 +30,13 @@ async def test_api_send_email(client, mock_db: Database, mock_emailer: SendgridE
 
 @pytest.mark.asyncio
 async def test_api_confirm_email(client: TestClient, mock_db: Database):
-    mock_db.query_account_by_a14n_signature_type_and_value = AsyncMock(return_value=AccountA14N(account_id='aaa',
-    account_a14n_provider_id='bbb', account_a14n_signature_id='ccc'))
+    mock_db.query_account_by_a14n_signature_type_and_value = AsyncMock(
+        return_value=AccountA14N(
+            account_id='aaa',
+            account_a14n_provider_id='bbb',
+            account_a14n_signature_id='ccc',
+        )
+    )
 
     response = client.get('/api/v1/auth/confirm-email-with-aaaa')
 

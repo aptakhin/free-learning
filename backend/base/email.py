@@ -12,10 +12,14 @@ logger = logging.getLogger(__name__)
 
 class Emailer(ABC):
     @abstractmethod
-    async def close(self): ...
+    async def close(self):
+        ...
 
     @abstractmethod
-    async def send_email(self, *, to: str, subject: str, content: list[dict[str, str]]): ...
+    async def send_email(
+        self, *, to: str, subject: str, content: list[dict[str, str]]
+    ):
+        ...
 
 
 class SendgridEmailer(Emailer):
@@ -32,7 +36,9 @@ class SendgridEmailer(Emailer):
     async def close(self):
         await self._client.aclose()
 
-    async def send_email(self, *, to: str, subject: str, content: list[dict[str, str]]):
+    async def send_email(
+        self, *, to: str, subject: str, content: list[dict[str, str]]
+    ):
         json_body = {
             'personalizations': [{'to': [{'email': to}]}],
             'from': {'email': self._from},
@@ -44,11 +50,17 @@ class SendgridEmailer(Emailer):
             json=json_body,
         )
         if response.status_code != 202:
-            logger.error('Got response code=%s with response=%s', response.status_code, response.text)
+            logger.error(
+                'Got response code=%s with response=%s',
+                response.status_code,
+                response.text,
+            )
             raise CantSendEmail(response.text)
 
 
-async def get_emailer(settings: Settings = Depends(get_settings)) -> Emailer:  # noqa: B008
+async def get_emailer(
+    settings: Settings = Depends(get_settings),
+) -> Emailer:  # noqa: B008
     emailer = SendgridEmailer(
         token=settings.sendgrid_token,
         from_=settings.sender_email,

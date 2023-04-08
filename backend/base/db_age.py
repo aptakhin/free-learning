@@ -10,7 +10,11 @@ import logging
 from typing import Any, Optional
 
 from base.models import Account, AccountA14N
-from base.db_tables import account, account_a14n_provider, account_a14n_signature
+from base.db_tables import (
+    account,
+    account_a14n_provider,
+    account_a14n_signature,
+)
 from base.models import Entity, Link, EntityQuery
 from sqlalchemy import event, select
 from sqlalchemy.dialects.postgresql import insert
@@ -50,10 +54,11 @@ class Database(object):
         async with engine.begin() as conn:
             await conn.execute(text('CREATE EXTENSION IF NOT EXISTS age'))
             await conn.execute(text("LOAD 'age'"))
-            await conn.execute(text(
-                'SET search_path = ag_catalog, '
-                '"$user", public',
-            ))
+            await conn.execute(
+                text(
+                    'SET search_path = ag_catalog, ' '"$user", public',
+                )
+            )
 
         return Database(engine)
 
@@ -63,7 +68,9 @@ class Database(object):
 
     async def upsert_entity(self, entity: Entity):
         label = make_label(entity.typ)
-        prepared_dict = entity.dict(exclude_none=True, exclude={'typ', 'properties'})
+        prepared_dict = entity.dict(
+            exclude_none=True, exclude={'typ', 'properties'}
+        )
         prepared_dict.update(entity.properties)
         properties = make_properties(prepared_dict)
         query = f"""SELECT * FROM cypher('msft', $$
@@ -74,13 +81,15 @@ class Database(object):
         logger.debug('Insert link query: {0}'.format(query))
         async with self._engine.begin() as conn:
             result = await conn.execute(text(query))
-            result_row, = result.one()
+            (result_row,) = result.one()
         logger.debug('Insert link query result: {0}'.format(result_row))
         return result_row
 
     async def upsert_link(self, link: Link):
         label = make_label(link.typ)
-        properties = make_properties(link.dict(exclude_none=True, exclude={'typ', 'start_id', 'end_id'}))
+        properties = make_properties(
+            link.dict(exclude_none=True, exclude={'typ', 'start_id', 'end_id'})
+        )
 
         param_obj = {
             'link_start_id': link.start_id,
@@ -99,7 +108,13 @@ class Database(object):
         logger.debug('Upsert link query: {0}'.format(prep_query))
         async with self._engine.begin() as conn:
             result = await conn.execute(text(prep_query))
-            result = await conn.execute(text("EXECUTE upsert_link_procedure_{0}('{1}');".format(self._prep_statement_counter, param_obj_str)))
+            result = await conn.execute(
+                text(
+                    "EXECUTE upsert_link_procedure_{0}('{1}');".format(
+                        self._prep_statement_counter, param_obj_str
+                    )
+                )
+            )
             result_row = result.scalar_one()
 
         logger.debug('Upsert link result: {0}'.format(result_row))
@@ -136,40 +151,69 @@ class Database(object):
         logger.debug('    params: %s', param_obj_str)
         async with self._engine.begin() as conn:
             await conn.execute(text(prep_query))
-            statement_exec_result = await conn.execute(text("EXECUTE query_linked_procedure_{0}('{1}')".format(self._prep_statement_counter, param_obj_str)))
+            statement_exec_result = await conn.execute(
+                text(
+                    "EXECUTE query_linked_procedure_{0}('{1}')".format(
+                        self._prep_statement_counter, param_obj_str
+                    )
+                )
+            )
             query_result = [row.items for row in statement_exec_result]
-        logger.debug('Linked query result: {0}'.format(json.dumps(query_result, indent=0)))
+        logger.debug(
+            'Linked query result: {0}'.format(
+                json.dumps(query_result, indent=0)
+            )
+        )
         self._prep_statement_counter += 1
         return query_result
 
-    async def query_account_by_a14n_signature_type_and_value(self, *, signature_type: str, signature_value: str) -> AccountA14N:
+    async def query_account_by_a14n_signature_type_and_value(
+        self, *, signature_type: str, signature_value: str
+    ) -> AccountA14N:
         async with self._engine.begin() as conn:
             query = (
-                select([
-                    account.c.id.label('account_id'),
-                    account_a14n_provider.c.id.label('account_a14n_provider_id'),
-                    account_a14n_signature.c.id.label('account_a14n_signature_id'),
-                ])
+                select(
+                    [
+                        account.c.id.label('account_id'),
+                        account_a14n_provider.c.id.label(
+                            'account_a14n_provider_id'
+                        ),
+                        account_a14n_signature.c.id.label(
+                            'account_a14n_signature_id'
+                        ),
+                    ]
+                )
                 .select_from(
-                    account
-                    .join(account_a14n_provider)
-                    .join(account_a14n_signature),
+                    account.join(account_a14n_provider).join(
+                        account_a14n_signature
+                    ),
                 )
                 .where(
-                    account_a14n_signature.c.account_a14n_provider_type == signature_type,
+                    account_a14n_signature.c.account_a14n_provider_type
+                    == signature_type,
                     account_a14n_signature.c.value == signature_value,
                 )
             )
             query_response = await conn.execute(query)
             query_result = query_response.one_or_none()
 
-            return AccountA14N(
-                account_id=query_result['account_id'],
-                account_a14n_provider_id=query_result['account_a14n_provider_id'],
-                account_a14n_signature_id=query_result['account_a14n_signature_id'],
-            ) if query_result else None
+            return (
+                AccountA14N(
+                    account_id=query_result['account_id'],
+                    account_a14n_provider_id=query_result[
+                        'account_a14n_provider_id'
+                    ],
+                    account_a14n_signature_id=query_result[
+                        'account_a14n_signature_id'
+                    ],
+                )
+                if query_result
+                else None
+            )
 
-    async def add_account_new_a14n_signature(self, *, account_id: str, signature_type: str, signature_value: str) -> Optional[Account]:
+    async def add_account_new_a14n_signature(
+        self, *, account_id: str, signature_type: str, signature_value: str
+    ) -> Optional[Account]:
         async with self._engine.begin() as conn:
             upsert_provider_query = (
                 insert(account_a14n_provider)
@@ -200,7 +244,9 @@ class Database(object):
                     account_a14n_signature.c.id,
                 )
             )
-            insert_signature_response = await conn.execute(insert_signature_query)
+            insert_signature_response = await conn.execute(
+                insert_signature_query
+            )
             insert_signature_result = insert_signature_response.one()
             return Account(
                 account_id=insert_signature_result['id'],
@@ -218,8 +264,7 @@ class Database(object):
                     account_a14n_provider.c.id.label('account_provider_id'),
                 )
                 .select_from(
-                    account
-                    .join(account_a14n_provider),
+                    account.join(account_a14n_provider),
                 )
                 .where(
                     account_a14n_provider.c.type == provider_type,
@@ -228,9 +273,13 @@ class Database(object):
             )
             query_response = await conn.execute(query)
             query_result = query_response.one_or_none()
-            return dict(
-                account_id=query_result['account_id'],
-            ) if query_result else None
+            return (
+                dict(
+                    account_id=query_result['account_id'],
+                )
+                if query_result
+                else None
+            )
 
     async def add_new_account(self) -> Account:
         async with self._engine.begin() as conn:
@@ -263,12 +312,15 @@ class Database(object):
             )
             await conn.execute(update_provider_query)
 
-
-    async def confirm_a14n_with_device(self, account_a14n_signature_id: str, device: dict[str, Any]) -> None:
+    async def confirm_a14n_with_device(
+        self, account_a14n_signature_id: str, device: dict[str, Any]
+    ) -> None:
         async with self._engine.begin() as conn:
             update_provider_query = (
                 account_a14n_signature.update()
-                .where(account_a14n_signature.c.id == account_a14n_signature_id)
+                .where(
+                    account_a14n_signature.c.id == account_a14n_signature_id
+                )
                 .values(
                     signed_in_at=datetime.now(),
                     device=device,
@@ -293,13 +345,19 @@ def make_properties(obj: Optional[dict[str, Any]]) -> str:
     elif isinstance(obj, (str, int)):
         return repr(obj)
     elif isinstance(obj, dict):
-        properties_str = ', '.join('{0}: {1}'.format(k, make_properties(v)) for k, v in obj.items())  # noqa: WPS111
+        properties_str = ', '.join(
+            '{0}: {1}'.format(k, make_properties(v)) for k, v in obj.items()
+        )  # noqa: WPS111
         return '{{{0}}}'.format(properties_str)
     elif isinstance(obj, list):
-        properties_str = ', '.join(make_properties(v) for v in obj)  # noqa: WPS111
+        properties_str = ', '.join(
+            make_properties(v) for v in obj
+        )  # noqa: WPS111
         return '{{{0}}}'.format(properties_str)
     else:
-        raise ValueError('Unsupported type `{0}` for `make_properties`!'.format(type(obj)))
+        raise ValueError(
+            'Unsupported type `{0}` for `make_properties`!'.format(type(obj))
+        )
 
 
 def make_label(obj: Optional[str]) -> str:

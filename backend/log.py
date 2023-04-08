@@ -23,13 +23,13 @@ class ColorfulConsoleFormatter(logging.Formatter):
         return '\n'.join(lines)
 
 
-
 class FigureLogRecord(logging.LogRecord):
     def getMessage(self) -> str:
         msg = str(self.msg)
         if self.args:
             msg = msg.format(*self.args)
         return msg
+
 
 def make_log_record_factory(*args, **kwargs):
     module_name = args[0]
@@ -68,9 +68,11 @@ def init_logger():
     logging.setLogRecordFactory(make_log_record_factory)
 
     from colorama import just_fix_windows_console
+
     just_fix_windows_console()
 
     # listloggers()
+
 
 # + [concurrent.futures                      ] <Logger concurrent.futures (DEBUG)>
 # + [concurrent                              ] <logging.PlaceHolder object at 0x1009a9ba0>
@@ -80,6 +82,7 @@ def init_logger():
 #      <StreamHandler <stderr> (NOTSET)>
 # + [uvicorn.access                          ] <Logger uvicorn.access (INFO)>
 #      <StreamHandler <stdout> (NOTSET)>
+
 
 def _make_base_config_dict() -> dict[str, Any]:
     base_dict_config = {
@@ -129,7 +132,6 @@ def _make_base_config_dict() -> dict[str, Any]:
                 'handlers': ['console'],
                 'level': 'DEBUG',
             },
-
             # misc
             'uvicorn': {
                 'handlers': ['console_fallback_formatter'],

@@ -30,8 +30,12 @@ def create_app():
     ]
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
-        json_result = jsonable_encoder({'detail': exc.errors(), 'body': exc.body})
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ):
+        json_result = jsonable_encoder(
+            {'detail': exc.errors(), 'body': exc.body}
+        )
         logger.info('Request validation error: %s', json_result)
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

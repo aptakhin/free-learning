@@ -32,3 +32,8 @@ per-file-ignores = [
     './backend/tests/*.py: S101,WPS116,WPS432,WPS442'
 ]
 max-line-length = 79
+
+
+[tool.black]
+line-length = 79
+target-version = ['py310']

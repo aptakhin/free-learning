@@ -1,5 +1,3 @@
-
-
 import copy
 from base.config import FL_MODULE_BASE_ENTITY
 from base.models import Entity

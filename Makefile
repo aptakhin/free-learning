@@ -28,17 +28,20 @@ run-frontendw::
 	(cd frontend && npm run dev)
 
 # Test
-make test-backend::
+test-backend::
 	(cd backend && PYTHONPATH=. poetry run pytest)
 
-make test-backendw::
+test-backendw::
 	(cd backend/tests && PYTHONPATH=.. poetry run ptw .. --now)
 
-make test-acc::
+test-acc::
 	(cd acceptance && npm run test)
 
-make test-accw::
+test-accw::
 	(cd acceptance && npm run testw)
 
-make lint-backend::
+lint-backend::
 	(cd backend && PYTHONPATH=. poetry run flake8)
+
+black::
+	(black -S $(ARGS))

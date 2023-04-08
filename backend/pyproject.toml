@@ -36,6 +36,11 @@ pre-commit = "^3.2.2"
 # Updating lock issue override wps -> flake8 -> import-metadata
 wemake-python-styleguide = {url = "https://github.com/aptakhin/wemake-python-styleguide/archive/refs/tags/0.17.2.zip"}
 flake8-pyproject = "^1.2.3"
+black = "^23.3.0"
+
+[tool.black]
+line-length = 79
+target-version = ['py310']
 
 [build-system]
 requires = ["poetry-core"]

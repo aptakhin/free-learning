@@ -30,7 +30,6 @@ class ExtractRule(object):
 
         default_block = 'com.freelearning.base.markdown_raw'
         for block in blocks:
-
             if block.typ != default_block:
                 continue
 
@@ -59,7 +58,10 @@ class MarkdownParser(object):
 
     def __init__(self) -> None:
         self._extract_rules = [
-            ExtractRule('(https://miro.com/app/board/\S+)', typ='com.freelearning.miro.block')
+            ExtractRule(
+                '(https://miro.com/app/board/\S+)',
+                typ='com.freelearning.miro.block',
+            )
         ]
 
     def parse(self, text: str, context: dict) -> ParserResults:
@@ -79,9 +81,7 @@ class MarkdownParser(object):
         blocks = []
         for block in parser_results.items:
             if block.typ == 'com.freelearning.base.markdown_raw':
-                md = (
-                    MarkdownIt('gfm-like')
-                )
+                md = MarkdownIt('gfm-like')
                 html_text = md.render(block.content)
 
                 blocks.append(

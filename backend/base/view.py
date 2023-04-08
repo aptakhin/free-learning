@@ -14,7 +14,9 @@ def prepare_view_inplace(entity: dict[str, Any]) -> dict:
 
     if parser_block['name'] == 'com.freelearning.base.markdown_parser':
         parser = MarkdownParser()
-        blocks = parser.parse(main_block['content'], main_block.get('context', {}))
+        blocks = parser.parse(
+            main_block['content'], main_block.get('context', {})
+        )
 
         html_blocks = parser.export_html(blocks)
 

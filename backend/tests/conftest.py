@@ -11,9 +11,12 @@ from httpx import Request, Response
 from app import create_app
 from base.config import (
     get_settings,
-    FL_MODULE_BASE, FL_MODULE_BASE_ENTITY,
-    Settings, FL_MODULE_BASE_LINK_CHILD_OF,
-    FL_MODULE_BASE_WEB_ROUTE, FL_MODULE_BASE_LINK_NEXT_OF,
+    FL_MODULE_BASE,
+    FL_MODULE_BASE_ENTITY,
+    Settings,
+    FL_MODULE_BASE_LINK_CHILD_OF,
+    FL_MODULE_BASE_WEB_ROUTE,
+    FL_MODULE_BASE_LINK_NEXT_OF,
 )
 from base.db import get_db
 from base.email import get_emailer
@@ -60,8 +63,10 @@ def client(test_app):
 
 def _override_dependency(*, app, override, obj):
     mock_obj = obj
+
     async def get_mock_obj():
         return mock_obj
+
     app.dependency_overrides[override] = get_mock_obj
     return mock_obj
 

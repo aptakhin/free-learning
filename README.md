@@ -40,6 +40,12 @@ Run watchable backend testing `pytest-watcher` (Separate shell & requires `make 
 make test-backendw
 ```
 
+### Black
+
+```
+make black ARGS=.
+```
+
 ### DB migrations
 
 Alembic powered on SQL-part of `Apache Age`.
